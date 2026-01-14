@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { fetchInvoices, getInvoiceStats, deleteInvoice } from '../api';
-import { Plus, Search, Filter, FileText, CheckCircle, AlertCircle, Clock, MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import { fetchInvoices, getInvoiceStats, deleteInvoice, downloadInvoicePdf } from '../api';
+import { Plus, Search, Filter, FileText, CheckCircle, AlertCircle, Clock, MoreHorizontal, Trash2, Edit, Download } from 'lucide-react';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
@@ -100,6 +100,23 @@ const InvoiceDashboard = ({ onCreateNew }) => {
             } catch (error) {
                 alert("Greška pri brisanju.");
             }
+        }
+    };
+
+    const handleDownload = async (invoice, e) => {
+        e.stopPropagation();
+        try {
+            const blob = await downloadInvoicePdf(invoice.id);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Racun_${invoice.number}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error(error);
+            alert("Greška pri preuzimanju PDF-a.");
         }
     };
 
@@ -283,6 +300,13 @@ const InvoiceDashboard = ({ onCreateNew }) => {
 
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={(e) => handleDownload(invoice, e)}
+                                                    className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                                                    title="Preuzmi PDF"
+                                                >
+                                                    <Download size={16} />
+                                                </button>
                                                 <button className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                                     <Edit size={16} />
                                                 </button>

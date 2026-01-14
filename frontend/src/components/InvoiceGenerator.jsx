@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createInvoice } from '../api';
+import { createInvoice, downloadInvoicePdf } from '../api';
 import ClientSelector from './ClientSelector';
 import { Plus, Trash2, Download, Send, Save, Calendar, FileText, CreditCard, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
@@ -14,7 +14,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
         items: [
             { id: 1, description: 'Consulting Services', quantity: 10, price: 70.00, discount: 0, tax: 25 },
         ],
-        notes: 'Hvala na poslovanju!',
+        notes: 'Obveznik nije u sustavu PDV-a, PDV nije obračunat temeljem čl. 90. st. 1. Zakona o PDV-u. Hvala na poslovanju!',
         issuer: {
             name: '',
             address: '',
@@ -174,8 +174,22 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
         };
 
         try {
-            await createInvoice(invoicePayload);
-            alert("Račun uspješno izdan!");
+            const savedInvoice = await createInvoice(invoicePayload);
+            if (confirm("Račun uspješno izdan! Želite li preuzeti PDF?")) {
+                try {
+                    const blob = await downloadInvoicePdf(savedInvoice.id);
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Racun_${savedInvoice.number}.pdf`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                } catch (pdfErr) {
+                    console.error("PDF download failed", pdfErr);
+                    alert("Račun je izdan, ali preuzimanje PDF-a nije uspjelo.");
+                }
+            }
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error(error);
@@ -184,20 +198,20 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
     };
 
     return (
-        <div className="flex flex-col xl:flex-row gap-8 p-8 max-w-[1920px] mx-auto h-[calc(100vh-theme(spacing.20))] overflow-hidden">
+        <div className="flex flex-col xl:flex-row gap-8 p-4 md:p-8 max-w-[1920px] mx-auto min-h-[calc(100vh-theme(spacing.20))] h-auto xl:h-[calc(100vh-theme(spacing.20))] overflow-y-auto xl:overflow-hidden">
 
             {/* LEFT COLUMN - EDITOR */}
-            <div className="flex-1 flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="w-full xl:flex-1 flex flex-col gap-6 xl:overflow-y-auto pr-0 xl:pr-2 custom-scrollbar pb-20">
 
                 {/* Header Actions */}
-                <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Novi Račun</h1>
                         <p className="text-slate-500 text-sm">Kreirajte i izdajte novi račun</p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                         {onBack && (
-                            <button onClick={onBack} className="mr-2 flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                            <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
                                 <ArrowLeft size={20} />
                                 <span className="hidden sm:inline">Natrag</span>
                             </button>
@@ -223,7 +237,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                         <FileText size={16} />
                         Osnovni Podaci
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Broj Računa</label>
                             <input
@@ -289,8 +303,8 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
 
                     <div className="flex flex-col gap-4">
                         {invoiceData.items.map((item, index) => (
-                            <div key={item.id} className="grid grid-cols-12 gap-4 items-start p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 group">
-                                <div className="col-span-12 sm:col-span-5">
+                            <div key={item.id} className="grid grid-cols-12 gap-3 items-end p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 group">
+                                <div className="col-span-12">
                                     <label className="text-xs text-slate-500 mb-1 block">Opis usluge / proizvoda</label>
                                     <input
                                         type="text"
@@ -300,7 +314,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                                         className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
                                     />
                                 </div>
-                                <div className="col-span-6 sm:col-span-2">
+                                <div className="col-span-3">
                                     <label className="text-xs text-slate-500 mb-1 block">Kol.</label>
                                     <input
                                         type="number"
@@ -309,7 +323,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                                         className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 outline-none text-right"
                                     />
                                 </div>
-                                <div className="col-span-6 sm:col-span-2">
+                                <div className="col-span-3">
                                     <label className="text-xs text-slate-500 mb-1 block">Cijena (€)</label>
                                     <input
                                         type="number"
@@ -318,15 +332,15 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                                         className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 outline-none text-right"
                                     />
                                 </div>
-                                <div className="col-span-11 sm:col-span-2">
+                                <div className="col-span-4">
                                     <label className="text-xs text-slate-500 mb-1 block">Ukupno</label>
-                                    <div className="bg-slate-100 dark:bg-slate-700 rounded px-2 py-1.5 text-sm text-right font-mono text-slate-700 dark:text-slate-300">
+                                    <div className="bg-slate-100 dark:bg-slate-700 rounded px-2 py-1.5 text-sm text-right font-mono text-slate-700 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
                                         {formatCurrency(item.quantity * item.price)}
                                     </div>
                                 </div>
-                                <div className="col-span-1 flex items-end justify-center h-full pb-2">
-                                    <button onClick={() => removeItem(item.id)} className="text-slate-400 hover:text-red-500 transition-colors">
-                                        <Trash2 size={16} />
+                                <div className="col-span-2 flex justify-center pb-1">
+                                    <button onClick={() => removeItem(item.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Obriši stavku">
+                                        <Trash2 size={18} />
                                     </button>
                                 </div>
                             </div>
@@ -351,33 +365,33 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
             </div>
 
             {/* RIGHT COLUMN - PREVIEW */}
-            <div className="hidden xl:block w-[800px] bg-slate-100 dark:bg-slate-900/50 p-8 rounded-2xl overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-800">
-                <div className="sticky top-0 mb-6 flex justify-between items-center bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur pb-4 z-10 p-2">
+            <div className="w-full xl:w-[800px] bg-slate-100 dark:bg-slate-900/50 p-4 md:p-8 rounded-2xl xl:overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-800 mt-8 xl:mt-0 pb-20">
+                <div className="sticky top-0 mb-6 flex justify-between items-center bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-20 p-2">
                     <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Pregled Računa</h2>
                     <button className="text-xs font-medium text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition">
                         Osvježi prikaz
                     </button>
                 </div>
 
-                {/* A4 Paper Simulation */}
-                <div className="bg-white text-slate-900 shadow-2xl mx-auto min-h-[1050px] w-full max-w-[700px] p-12 relative flex flex-col font-sans transition-all duration-300">
+                {/* A4 Paper Simulation - Scaled for small screens */}
+                <div className="bg-white text-slate-900 shadow-xl mx-auto min-h-[1050px] w-full max-w-[700px] p-8 md:p-12 relative flex flex-col font-sans transition-all duration-300 overflow-hidden">
 
                     {/* Paper Header */}
-                    <div className="flex justify-between items-start mb-16">
+                    <div className="flex flex-col sm:flex-row justify-between items-start mb-12 sm:mb-16 gap-6 sm:gap-0">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                                 P
                             </div>
                             <div className="text-xl font-bold tracking-tight text-slate-900">{invoiceData.issuer.name}</div>
                         </div>
-                        <div className="text-right">
-                            <h1 className="text-4xl font-light text-slate-300 tracking-widest uppercase mb-2">Račun</h1>
+                        <div className="text-left sm:text-right">
+                            <h1 className="text-3xl sm:text-4xl font-light text-slate-300 tracking-widest uppercase mb-2">Račun</h1>
                             <div className="text-sm font-semibold text-slate-700">Broj: {invoiceData.number}</div>
                             <div className="text-xs text-slate-500 mt-1">Ref: {Math.random().toString(36).substring(7).toUpperCase()}</div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-12 mb-16">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 mb-12 sm:mb-16">
                         {/* Issuer Info */}
                         <div>
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Izdavatelj</h3>
@@ -408,7 +422,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                     </div>
 
                     {/* Dates */}
-                    <div className="grid grid-cols-4 gap-4 mb-12 border-t border-b border-slate-100 py-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12 border-t border-b border-slate-100 py-6">
                         <div>
                             <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">Datum Izdavanja</div>
                             <div className="text-sm font-medium">{formatDate(invoiceData.issueDate)}</div>
@@ -430,9 +444,9 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                     {/* Table Header */}
                     <div className="flex items-center text-[10px] uppercase font-bold text-slate-400 mb-4 px-2">
                         <div className="flex-1">Opis Usluge / Proizvoda</div>
-                        <div className="w-16 text-right">Kol.</div>
-                        <div className="w-20 text-right">Cijena</div>
-                        <div className="w-16 text-right">Popust</div>
+                        <div className="hidden sm:block w-16 text-right">Kol.</div>
+                        <div className="hidden sm:block w-20 text-right">Cijena</div>
+                        <div className="hidden sm:block w-16 text-right">Popust</div>
                         <div className="w-24 text-right">Ukupno</div>
                     </div>
 
@@ -441,12 +455,19 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                         {invoiceData.items.map((item) => {
                             const total = item.quantity * item.price * (1 - (item.discount || 0) / 100);
                             return (
-                                <div key={item.id} className="flex items-start text-xs text-slate-600 py-3 border-b border-slate-50 px-2 last:border-0 hover:bg-slate-50 transition-colors">
-                                    <div className="flex-1 font-medium text-slate-800">{item.description || <span className="text-slate-300 italic">Nova stavka...</span>}</div>
-                                    <div className="w-16 text-right">{item.quantity}</div>
-                                    <div className="w-20 text-right">{formatCurrency(item.price)}</div>
-                                    <div className="w-16 text-right text-slate-400">{item.discount > 0 ? `${item.discount}%` : '-'}</div>
-                                    <div className="w-24 text-right font-medium text-slate-800">{formatCurrency(total)}</div>
+                                <div key={item.id} className="flex flex-col sm:flex-row sm:items-center items-start text-xs text-slate-600 py-3 border-b border-slate-50 px-2 last:border-0 hover:bg-slate-50 transition-colors gap-2 sm:gap-0">
+                                    <div className="flex-1 font-medium text-slate-800 w-full sm:w-auto overflow-hidden text-ellipsis">{item.description || <span className="text-slate-300 italic">Nova stavka...</span>}</div>
+
+                                    {/* Mobile detail view */}
+                                    <div className="flex sm:hidden w-full justify-between text-[10px] text-slate-400 mb-1">
+                                        <span>{item.quantity} x {formatCurrency(item.price)}</span>
+                                        <span>{item.discount > 0 ? `-${item.discount}%` : ''}</span>
+                                    </div>
+
+                                    <div className="hidden sm:block w-16 text-right">{item.quantity}</div>
+                                    <div className="hidden sm:block w-20 text-right">{formatCurrency(item.price)}</div>
+                                    <div className="hidden sm:block w-16 text-right text-slate-400">{item.discount > 0 ? `${item.discount}%` : '-'}</div>
+                                    <div className="w-full sm:w-24 text-right font-medium text-slate-800 self-end sm:self-auto">{formatCurrency(total)}</div>
                                 </div>
                             )
                         })}
@@ -470,7 +491,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
 
                     {/* QR Code Section */}
                     {qrCode && (
-                        <div className="absolute bottom-48 left-12 p-2 border border-slate-200 rounded-lg bg-white">
+                        <div className="absolute bottom-48 left-8 sm:left-12 p-2 border border-slate-200 rounded-lg bg-white hidden sm:block">
                             <div className="text-[10px] text-center text-slate-400 font-bold mb-1 uppercase tracking-wider">Slikaj i Plati</div>
                             <img src={qrCode} alt="Payment QR" className="w-32 h-32 object-contain mix-blend-multiply" />
                         </div>

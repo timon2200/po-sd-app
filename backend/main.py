@@ -15,6 +15,7 @@ from backend.sudreg import SudregAPI
 from backend.vies import ViesAPI
 from backend.barcode_utils import generate_epc_qr_code
 from backend.memorandum_generator import generate_memorandum_pdf
+from backend.invoice_pdf_generator import generate_invoice_pdf
 from fastapi.responses import Response
 from pypdf import PdfWriter
 from pypdf import PdfWriter
@@ -585,6 +586,32 @@ def delete_invoice(invoice_id: str):
     if not success:
         raise HTTPException(status_code=404, detail="Invoice not found")
     return {"status": "success"}
+
+@app.get("/api/invoices/{invoice_id}/pdf")
+def get_invoice_pdf(invoice_id: str):
+    invoice = db.get_invoice(invoice_id)
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+        
+    # Get issuer info directly using existing logic
+    metadata = db.get_metadata()
+    issuer = {
+        "name": metadata.get("name", "Lotus RC, vl. Timon Terzić"),
+        "address": metadata.get("address", "STANKA VRAZA 10, 42000 VARAŽDIN"),
+        "oib": metadata.get("oib", "58278708852"),
+        "iban": metadata.get("iban", "HR9824020061140483524")
+    }
+    
+    try:
+        pdf_content = generate_invoice_pdf(invoice, issuer)
+        return Response(
+            content=pdf_content,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=Racun_{invoice.number}.pdf"}
+        )
+    except Exception as e:
+        print(f"Error generating invoice PDF: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # --- Sudreg API Endpoints ---
 
