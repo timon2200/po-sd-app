@@ -13,6 +13,7 @@ from backend.gmail_service import GmailService
 from backend.xml_generator import generate_posd_xml
 from backend.sudreg import SudregAPI
 from backend.vies import ViesAPI
+from backend.barcode_utils import generate_epc_qr_code
 from fastapi.responses import Response
 from pypdf import PdfWriter
 import io
