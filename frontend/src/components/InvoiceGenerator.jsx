@@ -22,6 +22,8 @@ const InvoiceGenerator = () => {
         }
     });
 
+    const [qrCode, setQrCode] = useState(null);
+
     useEffect(() => {
         // Fetch issuer info from backend
         fetch('http://localhost:8000/api/issuer')
@@ -60,6 +62,42 @@ const InvoiceGenerator = () => {
     };
 
     const totals = calculateTotals();
+
+    // Generate Payment Reference
+    const getPaymentReference = () => {
+        // Simple model: HR01 Year-Month-Number or just Year-Number
+        // Usually HR01 Year-InvoiceNumber
+        // But InvoiceNumber includes "R-..." so let's strip it
+        const cleanNumber = invoiceData.number.replace(/[^0-9]/g, '');
+        return `HR01 ${cleanNumber}`;
+    };
+
+    // Auto-generate QR Code
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (totals.total > 0 && invoiceData.issuer.iban) {
+                const ref = getPaymentReference();
+
+                fetch('http://localhost:8000/api/utils/generate-payment-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        iban: invoiceData.issuer.iban,
+                        amount: totals.total,
+                        payee_name: invoiceData.issuer.name,
+                        payment_reference: ref,
+                        description: `Placanje racuna ${invoiceData.number}`,
+                        purpose_code: "COST"
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => setQrCode(data.qr_code))
+                    .catch(err => console.error(err));
+            }
+        }, 800); // Debounce 800ms
+
+        return () => clearTimeout(timeoutId);
+    }, [totals.total, invoiceData.issuer, invoiceData.number]);
 
     // Handlers
     const handleItemChange = (id, field, value) => {
@@ -376,6 +414,14 @@ const InvoiceGenerator = () => {
                             <span className="text-indigo-600">{formatCurrency(totals.total)}</span>
                         </div>
                     </div>
+
+                    {/* QR Code Section */}
+                    {qrCode && (
+                        <div className="absolute bottom-48 left-12 p-2 border border-slate-200 rounded-lg bg-white">
+                            <div className="text-[10px] text-center text-slate-400 font-bold mb-1 uppercase tracking-wider">Slikaj i Plati</div>
+                            <img src={qrCode} alt="Payment QR" className="w-32 h-32 object-contain mix-blend-multiply" />
+                        </div>
+                    )}
 
                     {/* Footer / Notes */}
                     <div className="mt-16 pt-8 border-t border-slate-100 text-xs text-slate-400">
