@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+beautifulsoup4
+lxml
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+pydantic
+python-multipart
+requests
+sse-starlette
+pypdf
+xhtml2pdf
+segno

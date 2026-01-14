@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2007 (http://www.altova.com) by Željko Mikic (Teched Consulting Ltd) -->
+<xsd:schema xmlns="http://e-porezna.porezna-uprava.hr/sheme/zahtjevi/ObrazacPOSD/v3-0" xmlns:meta="http://e-porezna.porezna-uprava.hr/sheme/Metapodaci/v2-0" xmlns:ispostave="http://e-porezna.porezna-uprava.hr/sheme/temeljno/SifrarnikIspostave/v2-0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:temeljni="http://e-porezna.porezna-uprava.hr/sheme/TemeljniTipovi/v2-1" targetNamespace="http://e-porezna.porezna-uprava.hr/sheme/zahtjevi/ObrazacPOSD/v3-0" elementFormDefault="qualified" version="2.0" id="ObrazacPOSDtipovi-v3-0" xml:lang="hr-HR">
+	<xsd:annotation>
+		<xsd:documentation>XML shema sadrži tipove koji definiraju sadržaj PO-SD obrasca</xsd:documentation>
+	</xsd:annotation>
+	<xsd:import namespace="http://e-porezna.porezna-uprava.hr/sheme/TemeljniTipovi/v2-1" schemaLocation="TemeljniTipovi-v2-1.xsd"/>
+	<xsd:import namespace="http://e-porezna.porezna-uprava.hr/sheme/Metapodaci/v2-0" schemaLocation="ObrazacPOSDmetapodaci-v3-0.xsd"/>
+	<xsd:complexType name="sObrazacPOSD">
+		<xsd:annotation>
+			<xsd:documentation>Struktura PO-SD obrasca</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="meta:Metapodaci"/>
+			<xsd:element name="Zaglavlje" type="sZaglavlje">
+				<xsd:annotation>
+					<xsd:documentation>Zaglavlje obrasca</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Tijelo" type="sTijelo"/>
+		</xsd:sequence>
+		<xsd:attribute name="verzijaSheme" use="required" fixed="1.0"/>
+	</xsd:complexType>
+	<xsd:complexType name="sZaglavlje">
+		<xsd:annotation>
+			<xsd:documentation>Zaglavlje obrasca</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+      <xsd:element name="Obveznik" type="sObveznik">
+        <xsd:annotation>
+          <xsd:documentation>Podaci o poreznom obvezniku</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="PodaciODjelatnosti" type="sPodaciODjelatnosti">
+        <xsd:annotation>
+          <xsd:documentation>Podaci o djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Razdoblje" type="sRazdoblje">
+				<xsd:annotation>
+					<xsd:documentation>Razdoblje za koji se podnosi obrazac</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="PotpomognutaPodrucjaIGradVukovar" type="sPotpomognutaPodrucjaIGradVukovar">
+        <xsd:annotation>
+          <xsd:documentation>Potpomognuta područja i područje Grada Vukovara</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="sTijelo">
+		<xsd:annotation>
+			<xsd:documentation>Tijelo obrasca</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+      <xsd:element name="PrivremenaObustavaCijeluGodinu" type="tDaNe">
+        <xsd:annotation>
+          <xsd:documentation>Privremena obustava cijelu godinu</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="PrestanakIzlazakIzObrtaPrijePocetkaSezone" type="tDaNe">
+        <xsd:annotation>
+          <xsd:documentation>Prestanak/izlazak iz obrta prije početka sezone</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+			<xsd:element name="RazdobljePojedinacneDjelatnosti" type="sRazdobljePojedinacneDjelatnosti" minOccurs="0" >
+        <xsd:annotation>
+          <xsd:documentation>Razdoblje obavljanja pojedinačne djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="RazdobljeZajednickeDjelatnosti" type="sRazdobljeZajednickeDjelatnosti" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>Razdoblje obavljanja zajedničke djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+			<xsd:element name="PodaciOPrimicima" type="sPodaciOPrimicima">
+        <xsd:annotation>
+          <xsd:documentation>III. Podaci o ostvarenim primicima od pojedinačne djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="GodisnjiDohodakOdPojedinacneDjelatnosti" type="sGodisnjiDohodakOdPojedinacneDjelatnosti">
+        <xsd:annotation>
+          <xsd:documentation>IV. Godišnji paušalni dohodak od pojedinačne djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="GodisnjiDohodakOdZajednickeDjelatnosti" type="sGodisnjiDohodakOdZajednickeDjelatnosti">
+        <xsd:annotation>
+          <xsd:documentation>V. Godišnji paušalni dohodak od zajedničke djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="UkupniGodisnjiDohodak" type="temeljni:tNonNegativeDecimal15-2">
+        <xsd:annotation>
+          <xsd:documentation>Ukupni godišnji paušalni dohodak</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ObracunPorezaIPrireza" type="sObracunPorezaIPrireza">
+        <xsd:annotation>
+          <xsd:documentation>VII. Obračun paušalnog poreza na dohodak i prireza porezu na dohodak</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="DostavaPrilogaPOSD30DaNe" type="tDaNe">
+        <xsd:annotation>
+          <xsd:documentation>Dostavljam priloge za obrazac PO-SD 30</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+			<xsd:element name="Prilozi">
+				<xsd:annotation>
+					<xsd:documentation>Prilozi</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Prilog" type="sPrilog" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="sRazdoblje">
+		<xsd:annotation>
+			<xsd:documentation>Struktura razdoblja (vremenski period)</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="DatumOd" type="xsd:date">
+				<xsd:annotation>
+					<xsd:documentation>Početni datum</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="DatumDo" type="xsd:date">
+				<xsd:annotation>
+					<xsd:documentation>Završni datum</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="sAdresa">
+		<xsd:annotation>
+			<xsd:documentation>Adresa</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="Mjesto" type="temeljni:tOgraniceniZnakovniNizMin2Max128">
+				<xsd:annotation>
+					<xsd:documentation>Naziv mjesta</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Ulica" type="temeljni:tOgraniceniZnakovniNizMin2Max128">
+				<xsd:annotation>
+					<xsd:documentation>Naziv ulice</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Broj" type="temeljni:tAdresaBroj">
+				<xsd:annotation>
+					<xsd:documentation>Kućni broj</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="sPodaciODjelatnosti">
+		<xsd:annotation>
+			<xsd:documentation>1.2. PODACI O DJELATNOSTI</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="NazivDjelatnosti" type="xsd:string" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Naziv zajedničke djelatnosti</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="VrstaDjelatnostiNkd2007" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Vrsta djelatnosti po NKD 2007</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="AdresaDjelatnosti" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Adresa djelatnosti</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sPotpomognutaPodrucjaIGradVukovar">
+    <xsd:annotation>
+      <xsd:documentation>1.5.	POTPOMOGNUTA PODRUČJA I PODRUČJE GRADA VUKOVARA</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="PotpomognutoPodrucje" type="tDaNe">
+        <xsd:annotation>
+          <xsd:documentation>Potpomognuto područje</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="GradVukovar" type="tDaNe">
+        <xsd:annotation>
+          <xsd:documentation>Grad Vukovar</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="OtociISkupine" type="tDaNe">
+        <xsd:annotation>
+          <xsd:documentation>Otoci I. skupine</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+	<xsd:complexType name="sRazdobljePojedinacneDjelatnosti">
+		<xsd:annotation>
+			<xsd:documentation>Razdoblje pojedinačne djelatnosti</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+      <xsd:element name="Razdoblje" type="sDatumDjelatnosti" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>Datum</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sRazdobljeZajednickeDjelatnosti">
+		<xsd:annotation>
+			<xsd:documentation>Razdoblje obavljanja zajedničke djelatnosti</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+      <xsd:element name="Razdoblje" type="sDatumDjelatnosti" minOccurs="0" maxOccurs="unbounded"> 
+        <xsd:annotation>
+          <xsd:documentation>Datum</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sPodaciOPrimicima">
+		<xsd:annotation>
+			<xsd:documentation>III. Podaci o ostvarenim primicima od pojedinačne djelatnosti</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+      <xsd:element name="PrimiciUGotovini" type="temeljni:tNonNegativeDecimal15-2">
+        <xsd:annotation>
+          <xsd:documentation>Primici naplaćeni u gotovini</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="PrimiciBezGotovine" type="temeljni:tNonNegativeDecimal15-2">
+        <xsd:annotation>
+          <xsd:documentation>Primici naplaćeni bezgotovinskim putem</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Ukupno" type="temeljni:tNonNegativeDecimal15-2">
+        <xsd:annotation>
+          <xsd:documentation>Ukupno naplaćeni primici</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sGodisnjiDohodakOdPojedinacneDjelatnosti">
+		<xsd:annotation>
+			<xsd:documentation>IV. Godišnji paušalni dohodak od pojedinačne djelatnosti</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="GodisnjiDohodak" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Godišnji paušalni dohodak od pojedinačne djelatnosti</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="BrojMjeseciObavljanjaDjelatnosti" type="xsd:nonNegativeInteger">
+				<xsd:annotation>
+					<xsd:documentation>Broj mjeseci obavljanja djelatnosti</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sGodisnjiDohodakOdZajednickeDjelatnosti">
+		<xsd:annotation>
+			<xsd:documentation>V. Godišnji paušalni dohodak od zajedničke djelatnosti</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="GodisnjiDohodak" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Godišnji paušalni dohodak od zajedničke djelatnosti</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="BrojMjeseciObavljanjaDjelatnosti" type="xsd:nonNegativeInteger">
+				<xsd:annotation>
+					<xsd:documentation>Broj mjeseci obavljanja djelatnosti</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sObracunPorezaIPrireza">
+		<xsd:annotation>
+			<xsd:documentation>VII. Obračun paušalnog poreza na dohodak i prireza porezu na dohodak</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="ObvezaPoreza" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Iznos obveze paušalnog poreza na dohodak</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="ProsjecnaStopa" type="tNonNegativeDecimal5-3">
+				<xsd:annotation>
+					<xsd:documentation>Prosječna stopa</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="Prirez" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Prirez porezu na dohodak</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="UkupniPorezIPrirez" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Ukupno paušalni porez na dohodak i prirez porezu na dohodak</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="UmanjenjePorezaIPrireza" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Umanjenje paušalnog poreza na dohodak za područje Grada Vukovara i potpomognutih područja jedinica lokalne samouprave I. skupine i otoci I. skupine</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element> 
+      <xsd:element name="UkupnaObvezaPorezaIPrireza" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Ukupna obveza paušalnog poreza na dohodak i prireza porezu na dohodak</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element> 
+      <xsd:element name="UkupniUplaceniPorezIPrirez" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Ukupno uplaćeni paušalni porez na dohodak i prirez porezu na dohodak</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="RazlikaZaUplatu" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Razlika za uplatu</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="RazlikaZaPovrat" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Razlika za povrat</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+      <xsd:element name="MjesecniPausalniPorezIPrirez" type="temeljni:tNonNegativeDecimal15-2">
+				<xsd:annotation>
+					<xsd:documentation>Iznos mjesečnog paušalnog poreza i prireza porezu na dohodak</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="sObveznik">
+		<xsd:annotation>
+			<xsd:documentation>1.1. PODACI O POREZNOM OBVEZNIKU</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+      <xsd:element name="OIB" type="temeljni:tOIB"/>
+			<xsd:element name="Ime" type="temeljni:tOgraniceniZnakovniNizMin2Max128"/>
+			<xsd:element name="Prezime" type="temeljni:tOgraniceniZnakovniNizMin2Max128"/>
+			<xsd:element name="Adresa" type="sAdresa"/>
+      <xsd:element name="Telefon" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="Email" type="temeljni:tEmail" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Email adresa</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name="sDatumDjelatnosti">
+    <xsd:sequence>
+      <xsd:element name="DatumOd" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation>Početni datum</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="DatumDo" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation>Završni datum</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+	<xsd:complexType name="sPrilog">
+		<xsd:sequence>
+      <xsd:element name="RedniBroj" type="xsd:positiveInteger">
+				<xsd:annotation>
+					<xsd:documentation>Redni broj priloga</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Naziv" type="tOgraniceniZnakovniNizMin2Max200">
+				<xsd:annotation>
+					<xsd:documentation>Naziv priloga</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:simpleType name="tPostotak">
+		<xsd:annotation>
+			<xsd:documentation>Postotak</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="temeljni:tDecimal15-4">
+			<xsd:minInclusive value="0"/>
+			<xsd:maxInclusive value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="tVrstaDjelatnosti">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+    <xsd:simpleType name="tOgraniceniZnakovniNizMin2Max200">
+    <xsd:annotation>
+      <xsd:documentation>Znakovni niz sa minimum 2 i maksimum 128 znakova</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="2"/>
+      <xsd:maxLength value="200"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="tDaNe">
+    <xsd:annotation>
+      <xsd:documentation>Da - Ne odabir</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>
+          1. Da, 0. Ne, prazno je za polja koja nisu nužna za unos
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:enumeration value="DA"/>
+      <xsd:enumeration value="NE"/>
+      <xsd:enumeration value=""/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="tNonNegativeDecimal5-3">
+    <xsd:annotation>
+      <xsd:documentation>Nenegativni decimalni broj s 3 znamenke (5 znamenki ukupno uključivši do tri decimalna mjesta)</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="5"/>
+      <xsd:fractionDigits value="3"/>
+      <xsd:minInclusive value="0"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="tNonNegativeDecimal15-3">
+    <xsd:annotation>
+      <xsd:documentation>Nenegativni decimalni broj s 3 znamenke (15 znamenki ukupno uključivši do tri decimalna mjesta)</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="15"/>
+      <xsd:fractionDigits value="3"/>
+      <xsd:minInclusive value="0"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

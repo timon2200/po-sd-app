@@ -1,0 +1,75 @@
+<ObrazacPOSD verzijaSheme="1.0" xmlns="http://e-porezna.porezna-uprava.hr/sheme/zahtjevi/ObrazacPOSD/v3-0">
+	<Metapodaci xmlns="http://e-porezna.porezna-uprava.hr/sheme/Metapodaci/v2-0">
+		<Naslov dc="http://purl.org/dc/elements/1.1/title">Izvješće o paušalnom dohotku od samostalnih djelatnosti i uplaćenom paušalnom porezu na dohodak i prirezu poreza na dohodak</Naslov>
+		<Autor dc="http://purl.org/dc/elements/1.1/creator">TESTNI KORISNIK</Autor>
+		<Datum dc="http://purl.org/dc/elements/1.1/date">2020-12-02T09:39:26</Datum>
+		<Format dc="http://purl.org/dc/elements/1.1/format">text/xml</Format>
+		<Jezik dc="http://purl.org/dc/elements/1.1/language">hr-HR</Jezik>
+		<Identifikator dc="http://purl.org/dc/elements/1.1/identifier">5d44d321-f648-4d7b-b1f7-d23d57e5fc92</Identifikator>
+		<Uskladjenost dc="http://purl.org/dc/terms/conformsTo">ObrazacPOSD-v3-0</Uskladjenost>
+		<Tip dc="http://purl.org/dc/elements/1.1/type">Elektronički obrazac</Tip>
+		<Adresant>Ministarstvo Financija, Porezna uprava, Zagreb</Adresant>
+	</Metapodaci>
+	<Zaglavlje>
+		<Obveznik>
+			<OIB>12345678912</OIB>
+			<Ime>IME</Ime>
+			<Prezime>PREZIME</Prezime>
+			<Adresa>
+				<Mjesto>MJESTO</Mjesto>
+				<Ulica>ULICA</Ulica>
+				<Broj>0001</Broj>
+			</Adresa>
+			<Telefon/>
+			<Email>test@test.hr</Email>
+		</Obveznik>
+		<PodaciODjelatnosti>
+			<NazivDjelatnosti>DJELATNOST</NazivDjelatnosti>
+			<VrstaDjelatnostiNkd2007>0111</VrstaDjelatnostiNkd2007>
+			<AdresaDjelatnosti>ADRESA DJELATNOSTI</AdresaDjelatnosti>
+		</PodaciODjelatnosti>
+		<Razdoblje>
+			<DatumOd>2019-01-01</DatumOd>
+			<DatumDo>2019-12-31</DatumDo>
+		</Razdoblje>
+		<PotpomognutaPodrucjaIGradVukovar>
+			<PotpomognutoPodrucje>NE</PotpomognutoPodrucje>
+			<GradVukovar>NE</GradVukovar>
+			<OtociISkupine>NE</OtociISkupine>
+		</PotpomognutaPodrucjaIGradVukovar>
+	</Zaglavlje>
+	<Tijelo>
+		<PrivremenaObustavaCijeluGodinu>NE</PrivremenaObustavaCijeluGodinu>
+		<PrestanakIzlazakIzObrtaPrijePocetkaSezone>NE</PrestanakIzlazakIzObrtaPrijePocetkaSezone>
+		<RazdobljePojedinacneDjelatnosti />
+		<RazdobljeZajednickeDjelatnosti />
+		<PodaciOPrimicima>
+			<PrimiciUGotovini>0.00</PrimiciUGotovini>
+			<PrimiciBezGotovine>0.00</PrimiciBezGotovine>
+			<Ukupno>0.00</Ukupno>
+		</PodaciOPrimicima>
+		<GodisnjiDohodakOdPojedinacneDjelatnosti>
+			<GodisnjiDohodak>0.00</GodisnjiDohodak>
+			<BrojMjeseciObavljanjaDjelatnosti>0</BrojMjeseciObavljanjaDjelatnosti>
+		</GodisnjiDohodakOdPojedinacneDjelatnosti>
+		<GodisnjiDohodakOdZajednickeDjelatnosti>
+			<GodisnjiDohodak>0.00</GodisnjiDohodak>
+			<BrojMjeseciObavljanjaDjelatnosti>0</BrojMjeseciObavljanjaDjelatnosti>
+		</GodisnjiDohodakOdZajednickeDjelatnosti>
+		<UkupniGodisnjiDohodak>0.00</UkupniGodisnjiDohodak>
+		<ObracunPorezaIPrireza>
+			<ObvezaPoreza>0.00</ObvezaPoreza>
+			<ProsjecnaStopa>0.000</ProsjecnaStopa>
+			<Prirez>0.00</Prirez>
+			<UkupniPorezIPrirez>0.00</UkupniPorezIPrirez>
+			<UmanjenjePorezaIPrireza>0.00</UmanjenjePorezaIPrireza>
+			<UkupnaObvezaPorezaIPrireza>0.00</UkupnaObvezaPorezaIPrireza>
+			<UkupniUplaceniPorezIPrirez>0.00</UkupniUplaceniPorezIPrirez>
+			<RazlikaZaUplatu>0.00</RazlikaZaUplatu>
+			<RazlikaZaPovrat>0.00</RazlikaZaPovrat>
+			<MjesecniPausalniPorezIPrirez>0.00</MjesecniPausalniPorezIPrirez>
+		</ObracunPorezaIPrireza>
+		<DostavaPrilogaPOSD30DaNe>NE</DostavaPrilogaPOSD30DaNe>
+		<Prilozi />
+	</Tijelo>
+</ObrazacPOSD>
