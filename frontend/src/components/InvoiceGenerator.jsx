@@ -15,12 +15,30 @@ const InvoiceGenerator = () => {
         ],
         notes: 'Hvala na poslovanju!',
         issuer: {
-            name: 'Moj Obrt j.d.o.o.',
-            address: 'Vukovarska 123, Zagreb',
-            oib: '12345678901',
-            iban: 'HR1234567890123456789',
+            name: '',
+            address: '',
+            oib: '',
+            iban: '',
         }
     });
+
+    useEffect(() => {
+        // Fetch issuer info from backend
+        fetch('http://localhost:8000/api/issuer')
+            .then(res => res.json())
+            .then(data => {
+                setInvoiceData(prev => ({
+                    ...prev,
+                    issuer: {
+                        name: data.name,
+                        address: data.address,
+                        oib: data.oib,
+                        iban: data.iban
+                    }
+                }));
+            })
+            .catch(err => console.error("Failed to fetch issuer info:", err));
+    }, []);
 
     // Calculations
     const calculateTotals = () => {
