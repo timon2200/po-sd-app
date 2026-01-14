@@ -37,12 +37,8 @@ def generate_memorandum_pdf(posd_data: POSDData, transactions: list[Transaction]
                     height: 1cm;
                 }}
             }}
-            @font-face {{
-                font-family: 'Roboto';
-                src: url('backend/fonts/Roboto-Regular.ttf');
-            }}
             body {{
-                font-family: 'Roboto', Helvetica, Arial, sans-serif;
+                font-family: Helvetica, Arial, sans-serif;
                 font-size: 10pt;
                 line-height: 1.5;
                 color: #333;

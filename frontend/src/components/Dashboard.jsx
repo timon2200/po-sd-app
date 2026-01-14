@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchTransactions, uploadTransactions, mergeDocuments, getProfile, logout } from '../api';
-import { RefreshCw, Upload, ArrowUpRight, ArrowDownLeft, Filter, Download, Moon, Sun, FileText, User, LogOut, ChevronDown } from 'lucide-react';
+import { RefreshCw, Upload, ArrowUpRight, ArrowDownLeft, Filter, Download, Moon, Sun, FileText, User, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { hr } from 'date-fns/locale';
@@ -102,6 +102,46 @@ const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [highlightedTx, setHighlightedTx] = useState(null);
+    const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+
+    const handleSort = (key) => {
+        setSortConfig((current) => ({
+            key,
+            direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
+        }));
+    };
+
+    const sortedTransactions = React.useMemo(() => {
+        let sortableItems = [...transactions];
+        if (sortConfig.key !== null) {
+            sortableItems.sort((a, b) => {
+                if (sortConfig.key === 'date') {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+                }
+                if (sortConfig.key === 'amount') {
+                    return sortConfig.direction === 'asc' ? a.amount - b.amount : b.amount - a.amount;
+                }
+                if (sortConfig.key === 'type') {
+                    return sortConfig.direction === 'asc'
+                        ? a.type.localeCompare(b.type)
+                        : b.type.localeCompare(a.type);
+                }
+                if (sortConfig.key === 'category') {
+                    // Primary sort by category
+                    const catCompare = a.category.localeCompare(b.category);
+                    if (catCompare !== 0) {
+                        return sortConfig.direction === 'asc' ? catCompare : -catCompare;
+                    }
+                    // Secondary sort by date (always desc for secondary)
+                    return new Date(b.date) - new Date(a.date);
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [transactions, sortConfig]);
 
     // Fetch user profile
     useEffect(() => {
@@ -572,11 +612,51 @@ const Dashboard = () => {
                                         onChange={handleSelectAll}
                                     />
                                 </th>
-                                <th className="px-6 py-4">Datum</th>
+                                <th
+                                    className="px-6 py-4 cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 transition-colors group select-none"
+                                    onClick={() => handleSort('date')}
+                                >
+                                    <div className="flex items-center gap-1">
+                                        Datum
+                                        <span className={clsx("transition-opacity", sortConfig.key === 'date' ? "opacity-100" : "opacity-0 group-hover:opacity-50")}>
+                                            {sortConfig.key === 'date' && sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                        </span>
+                                    </div>
+                                </th>
                                 <th className="px-6 py-4">Opis</th>
-                                <th className="px-6 py-4">Kategorija</th>
-                                <th className="px-6 py-4 text-right">Iznos</th>
-                                <th className="px-6 py-4 text-center">Tip</th>
+                                <th
+                                    className="px-6 py-4 cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 transition-colors group select-none"
+                                    onClick={() => handleSort('category')}
+                                >
+                                    <div className="flex items-center gap-1">
+                                        Kategorija
+                                        <span className={clsx("transition-opacity", sortConfig.key === 'category' ? "opacity-100" : "opacity-0 group-hover:opacity-50")}>
+                                            {sortConfig.key === 'category' && sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                        </span>
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-4 text-right cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 transition-colors group select-none"
+                                    onClick={() => handleSort('amount')}
+                                >
+                                    <div className="flex items-center justify-end gap-1">
+                                        Iznos
+                                        <span className={clsx("transition-opacity", sortConfig.key === 'amount' ? "opacity-100" : "opacity-0 group-hover:opacity-50")}>
+                                            {sortConfig.key === 'amount' && sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                        </span>
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-4 text-center cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 transition-colors group select-none"
+                                    onClick={() => handleSort('type')}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        Tip
+                                        <span className={clsx("transition-opacity", sortConfig.key === 'type' ? "opacity-100" : "opacity-0 group-hover:opacity-50")}>
+                                            {sortConfig.key === 'type' && sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                        </span>
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -585,7 +665,7 @@ const Dashboard = () => {
                             ) : transactions.length === 0 ? (
                                 <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-400">Nema pronađenih transakcija.</td></tr>
                             ) : (
-                                transactions.map((tx) => (
+                                sortedTransactions.map((tx) => (
                                     <tr
                                         key={tx.id}
                                         id={`tx-${tx.id}`}
