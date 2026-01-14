@@ -62,6 +62,13 @@ export const getStats = async (year) => {
     return response.data;
 };
 
+export const getMemorandumPdf = async (year) => {
+    const response = await api.get(`/posd/memorandum?year=${year}&t=${Date.now()}`, {
+        responseType: 'blob'
+    });
+    return response.data;
+};
+
 export const mergeDocuments = async (filenames) => {
     const response = await api.post('/documents/merge', { filenames }, {
         responseType: 'blob'
@@ -131,7 +138,37 @@ export const searchSudreg = async (name) => {
     return response.data;
 };
 
+
 export const getSudregDetails = async (oib) => {
     const response = await api.get(`/sudreg/details?oib=${encodeURIComponent(oib)}`);
     return response.data;
 };
+
+// --- Invoice Management ---
+
+export const fetchInvoices = async (page = 1, limit = 50, search = '', status = '') => {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', limit);
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+
+    const response = await api.get(`/invoices?${params.toString()}`);
+    return response.data;
+};
+
+export const createInvoice = async (invoiceData) => {
+    const response = await api.post('/invoices', invoiceData);
+    return response.data;
+};
+
+export const getInvoiceStats = async (year) => {
+    const response = await api.get(`/invoices/stats?year=${year}`);
+    return response.data;
+};
+
+export const deleteInvoice = async (id) => {
+    const response = await api.delete(`/invoices/${id}`);
+    return response.data;
+};
+

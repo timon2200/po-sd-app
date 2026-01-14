@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { createInvoice } from '../api';
 import ClientSelector from './ClientSelector';
-import { Plus, Trash2, Download, Send, Save, Calendar, FileText, CreditCard } from 'lucide-react';
+import { Plus, Trash2, Download, Send, Save, Calendar, FileText, CreditCard, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
 
-const InvoiceGenerator = () => {
+const InvoiceGenerator = ({ onBack, onSuccess }) => {
     // State
     const [invoiceData, setInvoiceData] = useState({
         number: `R-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 100) + 1).padStart(2, '0')}`,
@@ -140,6 +141,48 @@ const InvoiceGenerator = () => {
         return new Date(dateString).toLocaleDateString('hr-HR');
     };
 
+    const handleIssueInvoice = async () => {
+        if (!invoiceData.client) return alert("Molimo odaberite klijenta.");
+
+        const invoicePayload = {
+            number: invoiceData.number,
+            issue_date: invoiceData.issueDate,
+            due_date: invoiceData.dueDate,
+            year: new Date(invoiceData.issueDate).getFullYear(),
+
+            client_id: invoiceData.client.id || null,
+            client_name: invoiceData.client.name,
+            client_oib: invoiceData.client.oib,
+            client_address: invoiceData.client.address || '',
+            client_city: invoiceData.client.city || '',
+            client_zip: invoiceData.client.zip || '',
+
+            items: invoiceData.items.map(i => ({
+                id: String(i.id),
+                description: i.description,
+                quantity: i.quantity,
+                price: i.price,
+                discount: i.discount || 0,
+                tax: i.tax || 25
+            })),
+            notes: invoiceData.notes,
+
+            subtotal: totals.subtotal,
+            tax_total: totals.taxTotal,
+            total_amount: totals.total,
+            status: "open" // Default to open when issued
+        };
+
+        try {
+            await createInvoice(invoicePayload);
+            alert("Račun uspješno izdan!");
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error(error);
+            alert("Greška pri izdavanju računa: " + error.message);
+        }
+    };
+
     return (
         <div className="flex flex-col xl:flex-row gap-8 p-8 max-w-[1920px] mx-auto h-[calc(100vh-theme(spacing.20))] overflow-hidden">
 
@@ -153,11 +196,21 @@ const InvoiceGenerator = () => {
                         <p className="text-slate-500 text-sm">Kreirajte i izdajte novi račun</p>
                     </div>
                     <div className="flex gap-3">
+                        {onBack && (
+                            <button onClick={onBack} className="mr-2 flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                                <ArrowLeft size={20} />
+                                <span className="hidden sm:inline">Natrag</span>
+                            </button>
+                        )}
                         <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                             <Save size={18} />
                             <span className="hidden sm:inline">Spremi predložak</span>
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg shadow-indigo-200 dark:shadow-none transition">
+                        <button
+                            onClick={handleIssueInvoice}
+                            disabled={!invoiceData.client}
+                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg shadow-lg shadow-indigo-200 dark:shadow-none transition"
+                        >
                             <Send size={18} />
                             <span>Izdaj račun</span>
                         </button>

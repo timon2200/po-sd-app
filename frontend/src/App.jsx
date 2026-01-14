@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import Dashboard from './components/Dashboard';
 import Wizard from './components/Wizard';
 import InvoiceGenerator from './components/InvoiceGenerator';
+import InvoiceDashboard from './components/InvoiceDashboard';
 import Settings from './components/Settings';
 import { LayoutDashboard, Wand2, Calculator, Settings as SettingsIcon, FileText } from 'lucide-react';
 import clsx from 'clsx';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [invoiceView, setInvoiceView] = useState('list'); // 'list' or 'new'
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -20,7 +22,7 @@ function App() {
         <div className="flex flex-col gap-6 w-full">
           <NavIcon icon={LayoutDashboard} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} tooltip="Transakcije" />
           <NavIcon icon={Wand2} active={activeTab === 'wizard'} onClick={() => setActiveTab('wizard')} tooltip="PO-SD Čarobnjak" />
-          <NavIcon icon={FileText} active={activeTab === 'invoices'} onClick={() => setActiveTab('invoices')} tooltip="Izdavanje Računa" />
+          <NavIcon icon={FileText} active={activeTab === 'invoices'} onClick={() => { setActiveTab('invoices'); setInvoiceView('list'); }} tooltip="Izdavanje Računa" />
           <NavIcon icon={SettingsIcon} active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} tooltip="Postavke" />
         </div>
       </nav>
@@ -29,7 +31,8 @@ function App() {
       <main className="pl-20 min-h-screen">
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'wizard' && <Wizard />}
-        {activeTab === 'invoices' && <InvoiceGenerator />}
+        {activeTab === 'invoices' && invoiceView === 'list' && <InvoiceDashboard onCreateNew={() => setInvoiceView('new')} />}
+        {activeTab === 'invoices' && invoiceView === 'new' && <InvoiceGenerator onBack={() => setInvoiceView('list')} onSuccess={() => setInvoiceView('list')} />}
         {activeTab === 'settings' && <Settings />}
       </main>
     </div>

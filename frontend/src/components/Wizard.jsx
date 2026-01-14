@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getStats, generateXml } from '../api';
+import { saveAs } from 'file-saver';
+import { getStats, generateXml, getMemorandumPdf } from '../api';
 import { Calculator, ArrowRight, CheckCircle, AlertCircle, User, FileText } from 'lucide-react';
 import clsx from 'clsx';
+import TransactionReview from './wiz_steps/TransactionReview';
+import TaxReview from './wiz_steps/TaxReview';
 
 const Wizard = () => {
     const [step, setStep] = useState(1);
@@ -48,6 +51,40 @@ const Wizard = () => {
         }
     };
 
+    const handleDownloadMemorandum = async () => {
+        try {
+            // Visual feedback
+            const btn = document.getElementById('download-pdf-btn');
+            if (btn) btn.innerText = "Preuzimanje...";
+
+            const blob = await getMemorandumPdf(year);
+            console.log("Memorandum blob:", blob);
+
+            // Check content type or size to detect error responses masked as success
+            // Note: sometimes error response is blob type but content is json
+            if (blob.size < 500) {
+                // Try to read as text to see if it's an error
+                const text = await blob.text();
+                console.error("Small blob received:", text);
+                alert("Greška: Dobivena datoteka je premala. Vjerojatno greška servera:\n" + text);
+                if (btn) btn.innerText = "Preuzmi Obrazloženje (PDF)";
+                return;
+            }
+
+            saveAs(blob, `PO-SD_Obrazlozenje_${year}.pdf`);
+
+            if (btn) btn.innerText = "Preuzeto!";
+            setTimeout(() => { if (btn) btn.innerText = "Preuzmi Obrazloženje (PDF)"; }, 2000);
+
+        } catch (e) {
+            console.error("Download failed", e);
+            alert("Greška pri preuzimanju PDF-a: " + (e.message || "Nepoznata greška"));
+            const btn = document.getElementById('download-pdf-btn');
+            if (btn) btn.innerText = "Greška";
+        }
+    };
+
+
     if (!stats) return <div className="p-12 text-center text-slate-500">Učitavanje podataka...</div>;
 
     // Calculations
@@ -57,13 +94,14 @@ const Wizard = () => {
 
     const steps = [
         { id: 1, label: 'Osobni Podaci', icon: User },
-        { id: 2, label: 'Poslovni Primici', icon: FileText },
-        { id: 3, label: 'Uplaćeni Porezi', icon: Calculator },
-        { id: 4, label: 'Završno Izvješće', icon: CheckCircle },
+        { id: 2, label: 'Revizija Prometa', icon: FileText },
+        { id: 3, label: 'Poslovni Primici', icon: FileText },
+        { id: 4, label: 'Uplaćeni Porezi', icon: Calculator },
+        { id: 5, label: 'Završno Izvješće', icon: CheckCircle },
     ];
 
     return (
-        <div className="max-w-5xl mx-auto p-4 md:p-8">
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
             <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row min-h-[600px] overflow-hidden">
 
                 {/* Sidebar */}
@@ -175,8 +213,21 @@ const Wizard = () => {
                         </div>
                     )}
 
-                    {/* Step 2: Receipts */}
+                    {/* Step 2: Review */}
                     {step === 2 && (
+                        <TransactionReview
+                            year={year}
+                            onNext={() => {
+                                // Refresh stats when moving to next step as exclusions might have changed
+                                getStats(year).then(setStats);
+                                setStep(3);
+                            }}
+                            onBack={() => setStep(1)}
+                        />
+                    )}
+
+                    {/* Step 3: Receipts (Previously Step 2) */}
+                    {step === 3 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                             <div>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Poslovni Primici</h3>
@@ -269,58 +320,31 @@ const Wizard = () => {
 
 
                             <div className="flex gap-4 pt-4">
-                                <button onClick={() => setStep(1)} className="px-6 py-3 text-slate-400 hover:text-slate-600 font-medium">Natrag</button>
-                                <button onClick={() => setStep(3)} className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition font-medium shadow-lg shadow-blue-200 dark:shadow-blue-900/40 flex items-center gap-2">
+                                <button onClick={() => setStep(2)} className="px-6 py-3 text-slate-400 hover:text-slate-600 font-medium">Natrag</button>
+                                <button onClick={() => setStep(4)} className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition font-medium shadow-lg shadow-blue-200 dark:shadow-blue-900/40 flex items-center gap-2">
                                     Potvrdi <ArrowRight size={18} />
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* Step 3: Taxes */}
-                    {step === 3 && (
-                        <div className="space-y-6 max-w-lg animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Uplaćeni Porezi</h3>
-                                <p className="text-slate-500 dark:text-slate-400">
-                                    Unesite iznose poreza i prireza koje ste već uplatili tijekom godine.
-                                    Sustav je automatski prepoznao neka plaćanja.
-                                </p>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Uplaćeni Porez (€)</label>
-                                    <input
-                                        type="number"
-                                        value={taxes.tax}
-                                        onChange={e => setTaxes({ ...taxes, tax: e.target.value })}
-                                        className="w-full text-lg p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono"
-                                    />
-                                    <div className="text-xs text-slate-400 mt-1 text-right">Prepoznato iz transakcija</div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Uplaćeni Prirez (€)</label>
-                                    <input
-                                        type="number"
-                                        value={taxes.surtax}
-                                        onChange={e => setTaxes({ ...taxes, surtax: e.target.value })}
-                                        className="w-full text-lg p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4 pt-4">
-                                <button onClick={() => setStep(2)} className="px-6 py-3 text-slate-400 hover:text-slate-600 font-medium">Natrag</button>
-                                <button onClick={() => setStep(4)} className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition font-medium shadow-lg shadow-blue-200 dark:shadow-blue-900/40 flex items-center gap-2">
-                                    Dalje <ArrowRight size={18} />
-                                </button>
-                            </div>
-                        </div>
+                    {/* Step 4: Tax Review (New Smart Component) */}
+                    {step === 4 && (
+                        <TaxReview
+                            year={year}
+                            onNext={() => {
+                                // Refresh stats after saving tax review, then move to summary
+                                getStats(year).then(data => {
+                                    setStats(data);
+                                    setStep(5);
+                                });
+                            }}
+                            onBack={() => setStep(3)}
+                        />
                     )}
 
-                    {/* Step 4: Summary */}
-                    {step === 4 && (
+                    {/* Step 5: Summary (Previously Step 4) */}
+                    {step === 5 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                             <div>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Konačni Obračun</h3>
@@ -447,7 +471,16 @@ const Wizard = () => {
                                 Generiraj PO-SD Obrazac (XML)
                             </button>
 
-                            <button onClick={() => setStep(3)} className="w-full text-slate-400 hover:text-slate-600 text-sm font-medium">
+                            <button
+                                id="download-pdf-btn"
+                                onClick={handleDownloadMemorandum}
+                                className="w-full py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-base hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2"
+                            >
+                                <FileText size={18} />
+                                Preuzmi Obrazloženje (PDF) (FIXED)
+                            </button>
+
+                            <button onClick={() => setStep(4)} className="w-full text-slate-400 hover:text-slate-600 text-sm font-medium">
                                 Natrag na izmjene
                             </button>
                         </div>

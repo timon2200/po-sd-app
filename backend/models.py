@@ -30,6 +30,11 @@ class Transaction(BaseModel):
     category: TransactionCategory
     raw_reference: Optional[str] = None
     source_file: Optional[str] = None # Filename of the source document
+    
+    # PO-SD Smart Check fields
+    is_excluded_from_posd: bool = False
+    posd_note: Optional[str] = None
+    tax_type: Optional[str] = None # 'tax' or 'surtax'
 
 class POSDData(BaseModel):
     oib: str
@@ -59,3 +64,47 @@ class Settings(BaseModel):
     google_creds_path: str
     sudreg_client_id: Optional[str] = None
     sudreg_client_secret: Optional[str] = None
+
+class InvoiceStatus(str, Enum):
+    DRAFT = "draft"
+    OPEN = "open"
+    PAID = "paid"
+    OVERDUE = "overdue"
+    CANCELLED = "cancelled"
+
+class InvoiceItem(BaseModel):
+    id: str
+    description: str
+    quantity: float
+    price: float
+    discount: float = 0.0
+    tax: float = 25.0
+
+class Invoice(BaseModel):
+    id: Optional[str] = None
+    number: str # e.g. "R-2025-01"
+    year: int
+    issue_date: date
+    due_date: date
+    
+    # Client snapshot (in case client details change later)
+    client_id: Optional[str] = None
+    client_name: str
+    client_oib: str
+    client_address: str
+    client_city: str
+    client_zip: Optional[str] = None
+    
+    items: List[InvoiceItem]
+    notes: Optional[str] = ""
+    
+    subtotal: float
+    tax_total: float
+    total_amount: float
+    
+    status: InvoiceStatus = InvoiceStatus.DRAFT
+    
+    # Audit
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
