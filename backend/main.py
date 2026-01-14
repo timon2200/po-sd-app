@@ -430,10 +430,19 @@ def get_current_user():
         "email": email
     }
 
-@app.post("/api/auth/logout")
-def logout_user():
     success = gmail_service.logout()
     return {"status": "success" if success else "error"}
+
+@app.get("/api/issuer")
+def get_issuer_info():
+    """Returns the issuer (my business) details for invoices."""
+    metadata = db.get_metadata()
+    return {
+        "name": metadata.get("name", "Lotus RC, vl. Timon Terzić"),
+        "address": metadata.get("address", "STANKA VRAZA 10, 42000 VARAŽDIN"),
+        "oib": metadata.get("oib", "58278708852"),
+        "iban": metadata.get("iban", "HR9824020061140483524")
+    }
 
 # --- Client Management Endpoints ---
 
