@@ -68,11 +68,26 @@ def generate_posd_xml(data: POSDData) -> str:
     obveznik = ET.SubElement(zaglavlje, f"{{{NS_MAIN}}}Obveznik")
     ET.SubElement(obveznik, f"{{{NS_MAIN}}}OIB").text = data.oib
     
-    # Name splitting
+    # Name splitting logic
+    full_name = data.name
+    # Handle "Obrt, vl. Ime Prezime" format
+    if "vl." in full_name:
+        parts = full_name.split("vl.")
+        if len(parts) > 1:
+            full_name = parts[1].strip()
+            
     ime = "Timon"
     prezime = "Terzić"
-    if " " in data.name:
-        ime, prezime = data.name.split(" ", 1)
+    
+    if " " in full_name:
+        # Split on first space for Ime/Prezime
+        # Logic: First word is Ime, rest is Prezime (simplistic but works for most)
+        parts = full_name.strip().split(" ", 1)
+        ime = parts[0]
+        if len(parts) > 1:
+            prezime = parts[1]
+        else:
+            prezime = ""
         
     ET.SubElement(obveznik, f"{{{NS_MAIN}}}Ime").text = ime
     ET.SubElement(obveznik, f"{{{NS_MAIN}}}Prezime").text = prezime
@@ -82,7 +97,7 @@ def generate_posd_xml(data: POSDData) -> str:
     ET.SubElement(adresa, f"{{{NS_MAIN}}}Ulica").text = street
     ET.SubElement(adresa, f"{{{NS_MAIN}}}Broj").text = number
     
-    ET.SubElement(obveznik, f"{{{NS_MAIN}}}Email").text = "timon.terzic@example.com" # Should be in metadata/settings
+    ET.SubElement(obveznik, f"{{{NS_MAIN}}}Email").text = "timon.terzic@gmail.com" # Should be in metadata/settings
 
     # 3.2 PodaciODjelatnosti
     djelatnost = ET.SubElement(zaglavlje, f"{{{NS_MAIN}}}PodaciODjelatnosti")
