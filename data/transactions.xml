@@ -1,5 +1,10 @@
 <?xml version="1.0" ?>
 <database>
+    <metadata>
+        <oib>58278708852</oib>
+        <name>Lotus RC, vl. Timon Terzić</name>
+        <address>STANKA VRAZA 10, 42000 VARAŽDIN</address>
+    </metadata>
     <transactions>
         <transaction id="019ab5e125e25b67df895cf888abab44">
             <date>2025-12-19</date>

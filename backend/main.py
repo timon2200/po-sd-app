@@ -373,8 +373,8 @@ def get_posd_stats(year: int = datetime.now().year):
 
     return POSDData(
         oib=metadata.get("oib", "58278708852"), 
-        name=metadata.get("name", "Timon Terzić"), 
-        address=metadata.get("address", "STANKA VRAZA 10, VARAŽDIN"),
+        name=metadata.get("name", "Lotus RC, vl. Timon Terzić"), 
+        address=metadata.get("address", "STANKA VRAZA 10, 42000 VARAŽDIN"),
         # name and address use defaults from model
         year=year,
         total_receipts=total_receipts,
