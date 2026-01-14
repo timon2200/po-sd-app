@@ -49,22 +49,20 @@ def calculate_posd_obligation(total_receipts: float, tax_rate_percent: float = 1
         return bracket.base_tax_liability
     return 0.0
 
-def calculate_paid_tax(transactions: List["Transaction"], year: int) -> float:
+def calculate_paid_tax(transactions: List["Transaction"], year: int) -> tuple[float, float]:
     """
-    Calculates the total paid tax for the given year.
+    Calculates the total paid tax and surtax for the given year.
+    Returns: (tax_paid, surtax_paid)
     Logic:
     1. Filter by year.
     2. Filter by OUTFLOW.
-    3. Identify tax payments:
-       - raw_reference contains 'HR68 1449' (Income Tax specific model/call number)
-       - OR description contains "POREZ NA DOHODAK" (fallback)
-       - OR description contains "PRIREZ" (fallback)
+    3. Identify tax/surtax payments:
+       - Check `tax_type` field override first.
+       - Else check raw_reference ('HR68 1449' => tax)
+       - Else check description ("POREZ NA DOHODAK" => tax, "PRIREZ" => surtax)
     """
-    total_paid = 0.0
-    
-    # We need to import TransactionType here to avoid circular imports if possible,
-    # or rely on string comparison if types aren't available. 
-    # Better to pass simple objects or use string matching for type.
+    total_tax = 0.0
+    total_surtax = 0.0
     
     for tx in transactions:
         # Check date: either in the target year OR in first 15 days of next year
@@ -72,21 +70,33 @@ def calculate_paid_tax(transactions: List["Transaction"], year: int) -> float:
         in_grace_period = (tx.date.year == year + 1 and tx.date.month == 1 and tx.date.day <= 15)
         
         if (in_current_year or in_grace_period) and tx.type == "outflow":
+            # 1. Check manual override
+            if tx.tax_type == 'tax':
+                total_tax += tx.amount
+                continue
+            elif tx.tax_type == 'surtax':
+                total_surtax += tx.amount
+                continue
+            
+            # 2. Heuristics
             is_tax = False
+            is_surtax = False
             
             # Check raw reference for specific revenue code 1449 (Porez na dohodak)
-            # HR68 is the model, 1449 is the start of the poziv na broj (revenue code)
-            # Usually format is HR68 1449-....
             if tx.raw_reference and "HR68 1449" in tx.raw_reference:
                 is_tax = True
             
             # Fallback to description
-            if not is_tax:
+            if not is_tax and not is_surtax:
                 desc_upper = tx.description.upper()
-                if "POREZ NA DOHODAK" in desc_upper or "PRIREZ" in desc_upper:
+                if "PRIREZ" in desc_upper:
+                    is_surtax = True
+                elif "POREZ NA DOHODAK" in desc_upper:
                     is_tax = True
             
             if is_tax:
-                total_paid += tx.amount
+                total_tax += tx.amount
+            if is_surtax:
+                total_surtax += tx.amount
                 
-    return total_paid
+    return total_tax, total_surtax

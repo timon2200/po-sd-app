@@ -6,7 +6,7 @@ import os
 import sys
 from datetime import datetime
 
-from backend.models import Transaction, TransactionType, TransactionCategory, POSDData, Settings, Client
+from backend.models import Transaction, TransactionType, TransactionCategory, POSDData, Settings, Client, Invoice, InvoiceStatus
 from backend.database import XMLDatabase
 from backend.erste_parser import parse_erste_html
 from backend.gmail_service import GmailService
@@ -14,7 +14,9 @@ from backend.xml_generator import generate_posd_xml
 from backend.sudreg import SudregAPI
 from backend.vies import ViesAPI
 from backend.barcode_utils import generate_epc_qr_code
+from backend.memorandum_generator import generate_memorandum_pdf
 from fastapi.responses import Response
+from pypdf import PdfWriter
 from pypdf import PdfWriter
 import io
 import json
@@ -358,13 +360,17 @@ def get_posd_stats(year: int = datetime.now().year):
     
     for tx in txs:
         if tx.date.year == year:
+            # Skip if manually excluded
+            if getattr(tx, 'is_excluded_from_posd', False):
+                continue
+                
             if tx.category == TransactionCategory.BUSINESS_INCOME:
                 total_receipts += tx.amount
             
 
     # Calculate tax paid using robust logic
     from backend.posd_logic import get_tax_bracket, calculate_paid_tax, PAUSAL_TIERS_2025, PAUSAL_TIERS_2024
-    tax_paid = calculate_paid_tax(txs, year)
+    tax_paid, surtax_paid = calculate_paid_tax(txs, year)
 
     # Calculate bracket
     bracket = get_tax_bracket(total_receipts, year=year)
@@ -396,17 +402,68 @@ def generate_posd_xml_post(data: POSDData):
         headers={"Content-Disposition": f"attachment; filename=PO-SD_{data.year}.xml"}
     )
 
-@app.get("/api/posd/xml")
-def get_posd_xml(year: int = datetime.now().year):
-    # Backward compatibility / simple get
-    data = get_posd_stats(year)
-    xml_content = generate_posd_xml(data)
-    
     return Response(
         content=xml_content,
         media_type="application/xml",
         headers={"Content-Disposition": f"attachment; filename=PO-SD_{year}.xml"}
     )
+
+@app.get("/api/posd/memorandum")
+def get_posd_memorandum(year: int = datetime.now().year):
+    txs = db.load_transactions()
+    stats = get_posd_stats(year) # Re-use logic to get headers/metadata
+    
+    # Generate PDF
+    pdf_content = generate_memorandum_pdf(stats, txs, year)
+    
+    return Response(
+        content=pdf_content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=PO-SD_Obrazlozenje_{year}.pdf"}
+    )
+
+class ReviewRequestItem(BaseModel):
+    id: str
+    is_excluded: Optional[bool] = None
+    note: Optional[str] = None
+    tax_type: Optional[str] = None # 'tax', 'surtax', or '' (empty) to clear
+
+class ReviewRequest(BaseModel):
+    items: List[ReviewRequestItem]
+
+@app.post("/api/transactions/review")
+def review_transactions(req: ReviewRequest):
+    txs = db.load_transactions()
+    existing_map = {tx.id: tx for tx in txs}
+    
+    updated_count = 0
+    for item in req.items:
+        if item.id in existing_map:
+            tx = existing_map[item.id]
+            # Only update if changed
+            changed = False
+            
+            if item.is_excluded is not None and getattr(tx, 'is_excluded_from_posd', False) != item.is_excluded:
+                tx.is_excluded_from_posd = item.is_excluded
+                changed = True
+            
+            if item.note is not None and getattr(tx, 'posd_note', None) != item.note:
+                tx.posd_note = item.note
+                changed = True
+                
+            if item.tax_type is not None:
+                new_tax_type = item.tax_type if item.tax_type else None
+                if getattr(tx, 'tax_type', None) != new_tax_type:
+                    tx.tax_type = new_tax_type
+                    changed = True
+            
+            if changed:
+                updated_count += 1
+    
+    if updated_count > 0:
+        db.save_transactions(txs)
+        
+    return {"status": "success", "updated": updated_count}
 
 @app.get("/api/settings")
 def get_settings():
@@ -460,6 +517,73 @@ def delete_client(client_id: str):
     success = db.delete_client(client_id)
     if not success:
         raise HTTPException(status_code=404, detail="Client not found")
+    return {"status": "success"}
+
+
+# --- Invoice Management Endpoints ---
+
+@app.get("/api/invoices", response_model=dict)
+def get_invoices(
+    page: int = Query(1, ge=1),
+    limit: int = Query(100, ge=-1),
+    search: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    status: Optional[str] = None
+):
+    start = None
+    end = None
+    if start_date:
+        try:
+             start = datetime.strptime(start_date, "%Y-%m-%d").date()
+        except ValueError:
+             pass
+    if end_date:
+        try:
+             end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        except ValueError:
+             pass
+
+    status_enum = None
+    if status and status != "":
+        try:
+            status_enum = InvoiceStatus(status)
+        except:
+             pass
+
+    result = db.get_invoices(
+        skip=(page - 1) * limit if limit != -1 else 0,
+        limit=limit,
+        search=search,
+        start_date=start,
+        end_date=end,
+        status=status_enum
+    )
+    return result
+
+@app.post("/api/invoices", response_model=Invoice)
+def create_invoice(invoice: Invoice):
+    # Determine year from date if not correct
+    invoice.year = invoice.issue_date.year
+    saved = db.save_invoice(invoice)
+    return saved
+
+@app.get("/api/invoices/stats")
+def get_invoice_stats(year: int = datetime.now().year):
+    return db.get_invoice_stats(year)
+
+@app.get("/api/invoices/{invoice_id}", response_model=Invoice)
+def get_invoice(invoice_id: str):
+    inv = db.get_invoice(invoice_id)
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    return inv
+
+@app.delete("/api/invoices/{invoice_id}")
+def delete_invoice(invoice_id: str):
+    success = db.delete_invoice(invoice_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Invoice not found")
     return {"status": "success"}
 
 # --- Sudreg API Endpoints ---
@@ -600,4 +724,5 @@ def run_gmail_sync(query: Optional[str] = None):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Use import string for reload to work
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)

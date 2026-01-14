@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from typing import List, Optional
 import json
-from backend.models import Transaction, TransactionType, TransactionCategory, Client
+from backend.models import Transaction, TransactionType, TransactionCategory, Client, Invoice, InvoiceStatus
 from datetime import date
 import uuid
 
@@ -76,7 +76,11 @@ class XMLDatabase:
                     category=TransactionCategory(tx_node.find("category").text),
 
                     raw_reference=tx_node.find("raw_reference").text if tx_node.find("raw_reference") is not None else None,
-                    source_file=tx_node.find("source_file").text if tx_node.find("source_file") is not None else None
+                    source_file=tx_node.find("source_file").text if tx_node.find("source_file") is not None else None,
+                    
+                    is_excluded_from_posd=tx_node.find("is_excluded_from_posd").text == 'true' if tx_node.find("is_excluded_from_posd") is not None else False,
+                    posd_note=tx_node.find("posd_note").text if tx_node.find("posd_note") is not None else None,
+                    tax_type=tx_node.find("tax_type").text if tx_node.find("tax_type") is not None else None
                 )
                 transactions.append(tx)
             except Exception as e:
@@ -177,6 +181,13 @@ class XMLDatabase:
                 ET.SubElement(tx_elem, "raw_reference").text = tx.raw_reference
             if tx.source_file:
                 ET.SubElement(tx_elem, "source_file").text = tx.source_file
+            
+            if tx.is_excluded_from_posd:
+                ET.SubElement(tx_elem, "is_excluded_from_posd").text = 'true'
+            if tx.posd_note:
+                ET.SubElement(tx_elem, "posd_note").text = tx.posd_note
+            if tx.tax_type:
+                ET.SubElement(tx_elem, "tax_type").text = tx.tax_type
 
             added_count += 1
             existing_map[tx.id] = tx_elem
@@ -268,8 +279,171 @@ class XMLDatabase:
         initial_len = len(clients_data)
         filtered = [c for c in clients_data if c.get("id") != client_id]
         
+
         if len(filtered) < initial_len:
             with open(clients_path, 'w', encoding='utf-8') as f:
                 json.dump(filtered, f, indent=2, ensure_ascii=False)
             return True
         return False
+
+    # --- Invoice Management ---
+    def _load_invoices_file(self) -> List[dict]:
+        invoices_path = os.path.join(os.path.dirname(self.db_path), "invoices.json")
+        if not os.path.exists(invoices_path):
+            return []
+        try:
+            with open(invoices_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return []
+
+    def save_invoices_file(self, data: List[dict]):
+        invoices_path = os.path.join(os.path.dirname(self.db_path), "invoices.json")
+        with open(invoices_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False) # Use default serializer if needed
+
+    def get_invoices(self, 
+                    skip: int = 0, 
+                    limit: int = 100, 
+                    search: Optional[str] = None,
+                    start_date: Optional[date] = None,
+                    end_date: Optional[date] = None,
+                    status: Optional[InvoiceStatus] = None) -> dict:
+        
+        raw_data = self._load_invoices_file()
+        invoices = []
+        for d in raw_data:
+            # Parse dates
+            try:
+                # Assuming saved as ISO strings
+                d['issue_date'] = date.fromisoformat(d['issue_date'])
+                d['due_date'] = date.fromisoformat(d['due_date'])
+                invoices.append(Invoice(**d))
+            except Exception as e:
+                print(f"Error parsing invoice {d.get('id')}: {e}")
+                continue
+                
+        # Filter
+        filtered = []
+        for inv in invoices:
+            if status and inv.status != status:
+                continue
+            
+            if start_date and inv.issue_date < start_date:
+                continue
+                
+            if end_date and inv.issue_date > end_date:
+                continue
+                
+            if search:
+                s = search.lower()
+                if (s not in inv.client_name.lower() and 
+                    s not in inv.number.lower() and 
+                    s not in str(inv.total_amount)):
+                    continue
+            
+            filtered.append(inv)
+            
+        # Sort by date desc
+        filtered.sort(key=lambda x: x.issue_date, reverse=True)
+        
+        total = len(filtered)
+        paginated = filtered[skip : skip + limit] if limit != -1 else filtered
+        
+        return {
+            "total": total,
+            "data": paginated,
+            "skip": skip,
+            "limit": limit
+        }
+
+    def save_invoice(self, invoice: Invoice) -> Invoice:
+        raw_data = self._load_invoices_file()
+        
+        # Ensure ID
+        if not invoice.id:
+            invoice.id = str(uuid.uuid4())
+            
+        # Convert to dict for storage (handle dates)
+        inv_dict = invoice.model_dump()
+        inv_dict['issue_date'] = invoice.issue_date.isoformat()
+        inv_dict['due_date'] = invoice.due_date.isoformat()
+        
+        # Update or Append
+        updated = False
+        for i, d in enumerate(raw_data):
+            if d.get('id') == invoice.id:
+                raw_data[i] = inv_dict
+                updated = True
+                break
+        
+        if not updated:
+            raw_data.append(inv_dict)
+            
+        self.save_invoices_file(raw_data)
+        return invoice
+
+    def get_invoice(self, invoice_id: str) -> Optional[Invoice]:
+        raw_data = self._load_invoices_file()
+        for d in raw_data:
+            if d.get('id') == invoice_id:
+                d['issue_date'] = date.fromisoformat(d['issue_date'])
+                d['due_date'] = date.fromisoformat(d['due_date'])
+                return Invoice(**d)
+        return None
+
+    def delete_invoice(self, invoice_id: str) -> bool:
+        raw_data = self._load_invoices_file()
+        initial_len = len(raw_data)
+        filtered = [d for d in raw_data if d.get('id') != invoice_id]
+        
+        if len(filtered) < initial_len:
+            self.save_invoices_file(filtered)
+            return True
+        return False
+    
+    def get_invoice_stats(self, year: int) -> dict:
+        raw_data = self._load_invoices_file()
+        stats = {
+            "total_issued": 0.0,
+            "total_paid": 0.0,
+            "total_overdue": 0.0,
+            "total_draft": 0.0,
+            "count_all": 0,
+            "count_paid": 0,
+            "count_overdue": 0,
+            "count_open": 0,
+            "count_draft": 0
+        }
+        
+        current_date = date.today().isoformat()
+        
+        for d in raw_data:
+            # Check year (based on issue date)
+            if not d.get('issue_date', '').startswith(str(year)):
+                continue
+                
+            amount = d.get('total_amount', 0)
+            status = d.get('status')
+            due_date = d.get('due_date')
+            
+            stats["count_all"] += 1
+            stats["total_issued"] += amount
+            
+            if status == InvoiceStatus.PAID:
+                stats["total_paid"] += amount
+                stats["count_paid"] += 1
+            elif status == InvoiceStatus.DRAFT:
+                stats["total_draft"] += amount
+                stats["count_draft"] += 1
+            elif status == InvoiceStatus.OPEN:
+                stats["count_open"] += 1
+                # Check overdue logic for open invoices
+                if due_date and due_date < current_date:
+                     stats["total_overdue"] += amount
+                     stats["count_overdue"] += 1
+            elif status == InvoiceStatus.OVERDUE:
+                 stats["total_overdue"] += amount
+                 stats["count_overdue"] += 1
+                 
+        return stats
