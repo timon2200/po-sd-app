@@ -54,7 +54,7 @@ const StatCard = ({ title, value, count, trend, trendValue, icon: Icon, color, d
     );
 };
 
-const InvoiceDashboard = ({ onCreateNew }) => {
+const InvoiceDashboard = ({ onCreateNew, onEdit }) => {
     const [invoices, setInvoices] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -223,7 +223,7 @@ const InvoiceDashboard = ({ onCreateNew }) => {
 
                     {/* Status Filters */}
                     <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                        {['', 'draft', 'open', 'paid', 'overdue'].map(status => (
+                        {['', 'draft', 'open', 'paid', 'overdue', 'template'].map(status => (
                             <button
                                 key={status}
                                 onClick={() => setStatusFilter(status)}
@@ -234,7 +234,7 @@ const InvoiceDashboard = ({ onCreateNew }) => {
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                                 )}
                             >
-                                {status === '' ? 'Svi' : status === 'open' ? 'Otvoreno' : status === 'paid' ? 'Plaćeno' : status === 'overdue' ? 'Dospjelo' : 'Nacrt'}
+                                {status === '' ? 'Svi' : status === 'open' ? 'Otvoreno' : status === 'paid' ? 'Plaćeno' : status === 'overdue' ? 'Dospjelo' : status === 'template' ? 'Predlošci' : 'Nacrt'}
                             </button>
                         ))}
                     </div>
@@ -277,12 +277,14 @@ const InvoiceDashboard = ({ onCreateNew }) => {
                                                 "px-2.5 py-1 rounded-full text-xs font-bold border",
                                                 invoice.status === 'paid' ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" :
                                                     invoice.status === 'overdue' ? "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800" :
-                                                        invoice.status === 'draft' ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700" :
-                                                            "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800"
+                                                        invoice.status === 'template' ? "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800" :
+                                                            invoice.status === 'draft' ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700" :
+                                                                "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800"
                                             )}>
                                                 {invoice.status === 'paid' ? 'PLAĆENO' :
                                                     invoice.status === 'overdue' ? 'DOSPJELO' :
-                                                        invoice.status === 'draft' ? 'NACRT' : 'OTVORENO'}
+                                                        invoice.status === 'template' ? 'PREDLOŽAK' :
+                                                            invoice.status === 'draft' ? 'NACRT' : 'OTVORENO'}
                                             </span>
                                         </td>
 
@@ -307,7 +309,9 @@ const InvoiceDashboard = ({ onCreateNew }) => {
                                                 >
                                                     <Download size={16} />
                                                 </button>
-                                                <button className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                                <button
+                                                    onClick={() => onEdit(invoice)}
+                                                    className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                                     <Edit size={16} />
                                                 </button>
                                                 <button

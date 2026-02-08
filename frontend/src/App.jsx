@@ -10,6 +10,7 @@ import clsx from 'clsx';
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [invoiceView, setInvoiceView] = useState('list'); // 'list' or 'new'
+  const [editingInvoice, setEditingInvoice] = useState(null);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -31,8 +32,19 @@ function App() {
       <main className="pl-20 min-h-screen">
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'wizard' && <Wizard />}
-        {activeTab === 'invoices' && invoiceView === 'list' && <InvoiceDashboard onCreateNew={() => setInvoiceView('new')} />}
-        {activeTab === 'invoices' && invoiceView === 'new' && <InvoiceGenerator onBack={() => setInvoiceView('list')} onSuccess={() => setInvoiceView('list')} />}
+        {activeTab === 'invoices' && invoiceView === 'list' && (
+          <InvoiceDashboard
+            onCreateNew={() => { setEditingInvoice(null); setInvoiceView('new'); }}
+            onEdit={(invoice) => { setEditingInvoice(invoice); setInvoiceView('new'); }}
+          />
+        )}
+        {activeTab === 'invoices' && invoiceView === 'new' && (
+          <InvoiceGenerator
+            initialData={editingInvoice}
+            onBack={() => setInvoiceView('list')}
+            onSuccess={() => setInvoiceView('list')}
+          />
+        )}
         {activeTab === 'settings' && <Settings />}
       </main>
     </div>

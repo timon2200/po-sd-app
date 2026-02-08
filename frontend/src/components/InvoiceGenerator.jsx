@@ -4,7 +4,7 @@ import ClientSelector from './ClientSelector';
 import { Plus, Trash2, Download, Send, Save, Calendar, FileText, CreditCard, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
 
-const InvoiceGenerator = ({ onBack, onSuccess }) => {
+const InvoiceGenerator = ({ onBack, onSuccess, initialData }) => {
     // State
     const [invoiceData, setInvoiceData] = useState({
         number: `R-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 100) + 1).padStart(2, '0')}`,
@@ -26,7 +26,53 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
     const [qrCode, setQrCode] = useState(null);
 
     useEffect(() => {
-        // Fetch issuer info from backend
+        if (initialData) {
+            // Populate form with existing data
+            setInvoiceData({
+                ...initialData,
+                // Ensure dates are formatted for input (YYYY-MM-DD)
+                issueDate: initialData.issue_date ? initialData.issue_date.split('T')[0] : new Date().toISOString().split('T')[0],
+                dueDate: initialData.due_date ? initialData.due_date.split('T')[0] : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                // Map fields
+                client: initialData.client_name ? {
+                    id: initialData.client_id,
+                    name: initialData.client_name,
+                    oib: initialData.client_oib,
+                    address: initialData.client_address,
+                    city: initialData.client_city,
+                    zip: initialData.client_zip
+                } : null,
+                // Ensure items have necessary fields, especially tax which defaults to 25 if missing
+                items: initialData.items.map(i => ({ ...i, tax: i.tax || 25 })),
+                notes: initialData.notes || '',
+                // Preserve issuer info if we already have it in state?
+                // Actually initialData doesn't store issuer info in the Invoice model (it's global settings)
+                // So we keep the fetched issuer info.
+                issuer: invoiceData.issuer
+            });
+        } else {
+            // Fetch issuer info from backend only if new
+            fetch('http://localhost:8000/api/issuer')
+                .then(res => res.json())
+                .then(data => {
+                    setInvoiceData(prev => ({
+                        ...prev,
+                        issuer: {
+                            name: data.name,
+                            address: data.address,
+                            oib: data.oib,
+                            iban: data.iban
+                        }
+                    }));
+                })
+                .catch(err => console.error("Failed to fetch issuer info:", err));
+        }
+    }, [initialData]);
+
+    // Separate effect for fetching issuer if editing (since we skipped it above to avoid overwriting state too early, or maybe we just always fetch issuer?)
+    // Actually, let's always fetch issuer for fresh global settings, but don't overwrite user changes if we were editing?
+    // Simplified: Always fetch issuer on mount.
+    useEffect(() => {
         fetch('http://localhost:8000/api/issuer')
             .then(res => res.json())
             .then(data => {
@@ -40,7 +86,7 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                     }
                 }));
             })
-            .catch(err => console.error("Failed to fetch issuer info:", err));
+            .catch(() => { });
     }, []);
 
     // Calculations
@@ -141,37 +187,78 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
         return new Date(dateString).toLocaleDateString('hr-HR');
     };
 
+    const getPayload = (status) => ({
+        // Use existing ID if editing, otherwise let backend generate new
+        id: (initialData && initialData.id && status !== 'open-from-template') ? initialData.id : null,
+        number: invoiceData.number,
+        issue_date: invoiceData.issueDate,
+        due_date: invoiceData.dueDate,
+        year: new Date(invoiceData.issueDate).getFullYear(),
+
+        client_id: invoiceData.client.id || null,
+        client_name: invoiceData.client.name,
+        client_oib: invoiceData.client.oib,
+        client_address: invoiceData.client.address || '',
+        client_city: invoiceData.client.city || '',
+        client_zip: invoiceData.client.zip || '',
+
+        items: invoiceData.items.map(i => ({
+            id: String(i.id),
+            description: i.description,
+            quantity: i.quantity,
+            price: i.price,
+            discount: i.discount || 0,
+            tax: i.tax || 25
+        })),
+        notes: invoiceData.notes,
+
+        subtotal: totals.subtotal,
+        tax_total: totals.taxTotal,
+        total_amount: totals.total,
+        status: status === 'open-from-template' ? 'open' : status // 'open', 'draft', or 'template'
+    });
+
+    const handleSaveTemplate = async () => {
+        // If editing a template, update it. If new, create new.
+        // If editing an INVOICE but clicking Save Template, should we create a NEW template from it? Yes.
+        // So always treat as new unless we are explicitly editing a template?
+        // Let's simplify: "Save Template" updates the current record if it IS a template, otherwise creates a NEW template.
+        let isUpdate = false;
+        if (initialData && initialData.status === 'template') {
+            isUpdate = true;
+        }
+
+        const payload = getPayload('template');
+
+        // If we are NOT updating an existing template, remove ID to force creation
+        if (!isUpdate) {
+            payload.id = null;
+        }
+
+        try {
+            await createInvoice(payload);
+            alert("Predložak uspješno spremljen!");
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error(error);
+            alert("Greška: " + error.message);
+        }
+    };
+
     const handleIssueInvoice = async () => {
         if (!invoiceData.client) return alert("Molimo odaberite klijenta.");
 
-        const invoicePayload = {
-            number: invoiceData.number,
-            issue_date: invoiceData.issueDate,
-            due_date: invoiceData.dueDate,
-            year: new Date(invoiceData.issueDate).getFullYear(),
+        // If we are editing a Draft or Template, and now Issuing -> Update status to Open.
+        // If Template -> We probably want to create a NEW invoice (copy) and leave template alone?
+        // Decision: If sourced from Template -> Create New (ID=null).
+        // If sourced from Draft/Open -> Update Existing (ID=id).
 
-            client_id: invoiceData.client.id || null,
-            client_name: invoiceData.client.name,
-            client_oib: invoiceData.client.oib,
-            client_address: invoiceData.client.address || '',
-            client_city: invoiceData.client.city || '',
-            client_zip: invoiceData.client.zip || '',
+        let statusArg = 'open';
+        if (initialData && initialData.status === 'template') {
+            statusArg = 'open-from-template';
+        }
 
-            items: invoiceData.items.map(i => ({
-                id: String(i.id),
-                description: i.description,
-                quantity: i.quantity,
-                price: i.price,
-                discount: i.discount || 0,
-                tax: i.tax || 25
-            })),
-            notes: invoiceData.notes,
-
-            subtotal: totals.subtotal,
-            tax_total: totals.taxTotal,
-            total_amount: totals.total,
-            status: "open" // Default to open when issued
-        };
+        const invoicePayload = getPayload(statusArg);
 
         try {
             const savedInvoice = await createInvoice(invoicePayload);
@@ -181,7 +268,12 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.setAttribute('download', `Racun_${savedInvoice.number}.pdf`);
+
+                    const safeClientName = (savedInvoice.client_name || 'Client').replace(/[^a-z0-9]/gi, '_');
+                    const dateStr = savedInvoice.issue_date ? savedInvoice.issue_date.split('T')[0] : new Date().toISOString().split('T')[0];
+                    const filename = `Racun_${savedInvoice.number}_${safeClientName}_${dateStr}.pdf`;
+
+                    link.setAttribute('download', filename);
                     document.body.appendChild(link);
                     link.click();
                     link.remove();
@@ -206,7 +298,9 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                 {/* Header Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Novi Račun</h1>
+                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+                            {initialData ? (initialData.status === 'template' ? 'Uredi Predložak' : 'Uredi Račun') : 'Novi Račun'}
+                        </h1>
                         <p className="text-slate-500 text-sm">Kreirajte i izdajte novi račun</p>
                     </div>
                     <div className="flex flex-wrap gap-3">
@@ -216,7 +310,9 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                                 <span className="hidden sm:inline">Natrag</span>
                             </button>
                         )}
-                        <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                        <button
+                            onClick={handleSaveTemplate}
+                            className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                             <Save size={18} />
                             <span className="hidden sm:inline">Spremi predložak</span>
                         </button>
@@ -266,6 +362,16 @@ const InvoiceGenerator = ({ onBack, onSuccess }) => {
                                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 />
                             </div>
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Napomena</label>
+                            <textarea
+                                value={invoiceData.notes}
+                                onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })}
+                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none min-h-[80px] text-sm"
+                                placeholder="Unesite napomenu..."
+                            />
                         </div>
                     </div>
                 </div>

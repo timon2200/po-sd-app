@@ -1,9 +1,14 @@
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    pisa = None
 import io
 from datetime import datetime
 from backend.models import POSDData, Transaction
 
 def generate_memorandum_pdf(posd_data: POSDData, transactions: list[Transaction], year: int) -> bytes:
+    if pisa is None:
+        raise Exception("PDF generation disabled: xhtml2pdf not installed")
     """
     Generates a PDF Memorandum for the PO-SD form.
     It lists all transactions, highlighting those excluded from the PO-SD calculation

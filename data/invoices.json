@@ -1,15 +1,15 @@
 [
   {
-    "id": "621487b5-99c5-41f3-8357-0f66783d749c",
-    "number": "R-2026-24",
+    "id": "e3bf0f3a-f950-4c70-8774-dfe53455c022",
+    "number": "R-2026-76",
     "year": 2026,
     "issue_date": "2026-01-14",
     "due_date": "2026-01-29",
     "client_id": null,
-    "client_name": "HKN d.o.o.",
-    "client_oib": "13018705268",
-    "client_address": "SVETONEDELJSKA CESTA 2, KERESTINEC, 10431 Sveta Nedelja",
-    "client_city": "SVETONEDELJSKA CESTA 2, KERESTINEC,  Sveta Nedelja",
+    "client_name": "GIT d.o.o.",
+    "client_oib": "83058532881",
+    "client_address": "ULICA STANKA VRAZA 12, VARAŽDIN, 42000 Varaždin",
+    "client_city": "ULICA STANKA VRAZA 12, VARAŽDIN,  Varaždin",
     "client_zip": "",
     "items": [
       {
@@ -21,7 +21,67 @@
         "tax": 25.0
       }
     ],
-    "notes": "Hvala na poslovanju!",
+    "notes": "Obveznik nije u sustavu PDV-a, PDV nije obračunat temeljem čl. 90. st. 1. Zakona o PDV-u. Hvala na poslovanju!",
+    "subtotal": 700.0,
+    "tax_total": 175.0,
+    "total_amount": 875.0,
+    "status": "open",
+    "created_at": null,
+    "updated_at": null
+  },
+  {
+    "id": "3e4a7bea-d86b-483c-8fc7-0035511df10d",
+    "number": "R-2026-76",
+    "year": 2026,
+    "issue_date": "2026-01-14",
+    "due_date": "2026-01-29",
+    "client_id": null,
+    "client_name": "GIT d.o.o.",
+    "client_oib": "83058532881",
+    "client_address": "ULICA STANKA VRAZA 12, VARAŽDIN, 42000 Varaždin",
+    "client_city": "ULICA STANKA VRAZA 12, VARAŽDIN,  Varaždin",
+    "client_zip": "",
+    "items": [
+      {
+        "id": "1",
+        "description": "Consulting Services",
+        "quantity": 10.0,
+        "price": 70.0,
+        "discount": 0.0,
+        "tax": 25.0
+      }
+    ],
+    "notes": "Obveznik nije u sustavu PDV-a, PDV nije obračunat temeljem čl. 90. st. 1. Zakona o PDV-u. Hvala na poslovanju!",
+    "subtotal": 700.0,
+    "tax_total": 175.0,
+    "total_amount": 875.0,
+    "status": "template",
+    "created_at": null,
+    "updated_at": null
+  },
+  {
+    "id": "bd431719-8084-4569-8ad3-05df05355149",
+    "number": "R-2026-76",
+    "year": 2026,
+    "issue_date": "2026-01-14",
+    "due_date": "2026-01-29",
+    "client_id": null,
+    "client_name": "GIT d.o.o.",
+    "client_oib": "83058532881",
+    "client_address": "ULICA STANKA VRAZA 12, VARAŽDIN, 42000 Varaždin",
+    "client_city": "ULICA STANKA VRAZA 12, VARAŽDIN,  Varaždin",
+    "client_zip": "",
+    "items": [
+      {
+        "id": "1",
+        "description": "Consulting Services",
+        "quantity": 10.0,
+        "price": 70.0,
+        "discount": 0.0,
+        "tax": 25.0
+      }
+    ],
+    "notes": "Obveznik nije u sustavu PDV-a, PDV nije obračunat temeljem čl. 90. st. 1. Zakona o PDV-u. Hvala na poslovanju!",
     "subtotal": 700.0,
     "tax_total": 175.0,
     "total_amount": 875.0,

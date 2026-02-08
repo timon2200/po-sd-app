@@ -1,8 +1,14 @@
 import sys
 import io
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    pisa = None
 
 def convert_html_to_pdf(source_path, dest_path):
+    if pisa is None:
+        print("Error: xhtml2pdf not installed")
+        sys.exit(1)
     try:
         with open(source_path, "r", encoding="utf-8") as f:
             source_html = f.read()

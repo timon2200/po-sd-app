@@ -74,11 +74,25 @@ class ViesAPI:
                 city = last_part
                 
             # Remaining parts are address
-            address = ", ".join(parts[:-1]) if len(parts) > 1 else parts[0]
-            if not address and len(parts) == 1:
-                # If only one line, maybe it's just address or just city?
-                # VIES HR usually returns standard format.
-                pass
+            # Remaining parts are address
+            if len(parts) > 1:
+                address = ", ".join(parts[:-1])
+            else:
+                # If single line, we must remove the city/zip we just extracted to avoid duplication
+                address = parts[0]
+                if postal_code:
+                    address = address.replace(postal_code, "")
+                if city:
+                    # City might be "VARAŽDIN" or "Varaždin", handle careful replacement or just leave it if complex
+                    # But usually it's at the end.
+                    # Simplest approach: if address ends with city, slice it
+                    if address.strip().lower().endswith(city.lower()):
+                        # Be careful with case, regex replace might be safer or rfind
+                        idx = address.lower().rfind(city.lower())
+                        if idx != -1:
+                            address = address[:idx]
+                            
+                address = address.strip(", \n\t")
 
         return {
             "name": vies_data.get("name", ""),

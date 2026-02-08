@@ -2,6 +2,7 @@ import os
 import base64
 from typing import List, Optional
 from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -19,7 +20,7 @@ class GmailService:
 
     def authenticate(self):
         """Shows basic usage of the Gmail API.
-        Lists the user's Gmail labels.
+        Handles expired/revoked tokens by automatically triggering re-authentication.
         """
         self.creds = None
         # The file token.json stores the user's access and refresh tokens, and is
@@ -27,11 +28,21 @@ class GmailService:
         # time.
         if os.path.exists(self.token_path):
             self.creds = Credentials.from_authorized_user_file(self.token_path, SCOPES)
+        
         # If there are no (valid) credentials available, let the user log in.
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
-                self.creds.refresh(Request())
-            else:
+                try:
+                    self.creds.refresh(Request())
+                except RefreshError as e:
+                    # Token has been expired or revoked - delete and re-authenticate
+                    print(f"Token refresh failed: {e}. Deleting invalid token and re-authenticating...")
+                    if os.path.exists(self.token_path):
+                        os.remove(self.token_path)
+                    self.creds = None
+            
+            # If we still don't have valid credentials, run the OAuth flow
+            if not self.creds:
                 if not os.path.exists(self.credentials_path):
                     # Mocking/Warning for development if file is missing
                     print(f"Warning: {self.credentials_path} not found. Cannot authenticate.")
@@ -40,6 +51,7 @@ class GmailService:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     self.credentials_path, SCOPES)
                 self.creds = flow.run_local_server(port=0)
+            
             # Save the credentials for the next run
             with open(self.token_path, 'w') as token:
                 token.write(self.creds.to_json())

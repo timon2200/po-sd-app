@@ -18,11 +18,12 @@ from backend.memorandum_generator import generate_memorandum_pdf
 from backend.invoice_pdf_generator import generate_invoice_pdf
 from fastapi.responses import Response
 from pypdf import PdfWriter
-from pypdf import PdfWriter
+# from pypdf import PdfWriter # Duplicate removed
 import io
 import json
 
 app = FastAPI(title="PO-SD App API")
+# Reload trigger: Dependency fixed
 
 # Allow CORS for local frontend
 app.add_middleware(
@@ -220,10 +221,15 @@ async def upload_transactions(files: List[UploadFile]):
 class MergeRequest(BaseModel):
     filenames: List[str]
 
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    pisa = None
 
 @app.post("/api/documents/merge")
 def merge_documents(req: MergeRequest):
+    if pisa is None:
+        raise HTTPException(status_code=501, detail="PDF generation is currently disabled due to missing system dependencies.")
     print(f"Received merge request for {len(req.filenames)} files")
     merger = PdfWriter()
     found_any = False
@@ -328,7 +334,9 @@ def html_to_pdf(req: HTMLToPDFRequest):
     
     # Let's try direct usage first, catching exceptions
     try:
-        from xhtml2pdf import pisa
+        if pisa is None:
+             raise Exception("xhtml2pdf not installed")
+        # from xhtml2pdf import pisa # Imported globally
         output_buffer = io.BytesIO()
         
         # pisa.CreatePDF expects str or file-like
@@ -390,6 +398,7 @@ def get_posd_stats(year: int = datetime.now().year):
         surtax_paid=surtax_paid,
         tax_bracket=bracket.description if bracket else "Van sustava (preko 40k/60k)",
         base_tax_liability=bracket.base_tax_liability if bracket else 0.0,
+        annual_tax_base=bracket.tax_base if bracket else 0.0,
         all_brackets=all_tiers
     )
 
@@ -604,10 +613,16 @@ def get_invoice_pdf(invoice_id: str):
     
     try:
         pdf_content = generate_invoice_pdf(invoice, issuer)
+        
+        # Sanitize client name for filename
+        safe_client_name = "".join([c if c.isalnum() else "_" for c in invoice.client_name]).strip("_")
+        date_str = invoice.issue_date.strftime("%Y-%m-%d")
+        filename = f"Racun_{invoice.number}_{safe_client_name}_{date_str}.pdf"
+        
         return Response(
             content=pdf_content,
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=Racun_{invoice.number}.pdf"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     except Exception as e:
         print(f"Error generating invoice PDF: {e}")

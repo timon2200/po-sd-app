@@ -15,6 +15,26 @@ npm-debug.log
 *.log
 backend_debug*.log
 
+# Test / temp outputs
+test_*.pdf
+test_*.p12
+preview.pdf
+test_merged.pdf
+memorandum_debug_output.txt
+lines_*.txt
+
+# Temp bank statement HTML
+data/IZV_*.html
+IZV_*.html
+
+# Temp XML
+Lotus_RC_*.xml
+PO-SD_*.xml
+
+# Debug scripts
+debug_*.py
+backend/pdf_worker_test.py
+
 # System
 .DS_Store
 

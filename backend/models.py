@@ -10,6 +10,7 @@ class TransactionType(str, Enum):
 class TaxBracket(BaseModel):
     max_receipts: float
     base_tax_liability: float
+    tax_base: float
     description: str
 
 class TransactionCategory(str, Enum):
@@ -46,6 +47,7 @@ class POSDData(BaseModel):
     surtax_paid: float
     tax_bracket: Optional[str] = None
     base_tax_liability: Optional[float] = 0.0
+    annual_tax_base: Optional[float] = 0.0
     all_brackets: Optional[List[TaxBracket]] = None
 
 
@@ -71,6 +73,7 @@ class InvoiceStatus(str, Enum):
     PAID = "paid"
     OVERDUE = "overdue"
     CANCELLED = "cancelled"
+    TEMPLATE = "template"
 
 class InvoiceItem(BaseModel):
     id: str

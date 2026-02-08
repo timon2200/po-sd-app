@@ -159,13 +159,78 @@ class XMLDatabase:
 
         for tx in new_transactions:
             if tx.id in existing_map:
+                existing_elem = existing_map[tx.id]
+                updated = False
+                
                 # Check if we need to update source_file
                 if tx.source_file:
-                    existing_elem = existing_map[tx.id]
                     sf_node = existing_elem.find("source_file")
                     if sf_node is None:
                         ET.SubElement(existing_elem, "source_file").text = tx.source_file
-                        added_count += 1
+                        updated = True
+                    elif sf_node.text != tx.source_file:
+                        sf_node.text = tx.source_file
+                        updated = True
+
+                # Update PO-SD fields
+                # 1. Exclusion status
+                excluded_node = existing_elem.find("is_excluded_from_posd")
+                new_excluded_str = 'true' if tx.is_excluded_from_posd else 'false'
+                
+                if excluded_node is None:
+                    if tx.is_excluded_from_posd: # Only add if true to keep xml clean? or always? 
+                        # To be safe, let's always match the mode if we are updating explicit objects
+                        ET.SubElement(existing_elem, "is_excluded_from_posd").text = 'true'
+                        updated = True
+                else:
+                    current_val = excluded_node.text
+                    if current_val != new_excluded_str:
+                         # If it was 'true' and now 'false', we should update it
+                         # But wait, original code only set it if True. 
+                         # Let's align with "if False, maybe remove it?" 
+                         # For now, explicit text update is safest.
+                         # Actually, the original read logic checks == 'true'.
+                         if tx.is_excluded_from_posd:
+                             excluded_node.text = 'true'
+                         else:
+                             # If false, we can set to false or remove.
+                             excluded_node.text = 'false'
+                         updated = True
+
+                # 2. Note
+                note_node = existing_elem.find("posd_note")
+                if tx.posd_note:
+                    if note_node is None:
+                        ET.SubElement(existing_elem, "posd_note").text = tx.posd_note
+                        updated = True
+                    elif note_node.text != tx.posd_note:
+                        note_node.text = tx.posd_note
+                        updated = True
+                else:
+                    # If new note is empty, but old one existed, should we clear it?
+                    # The review API sends explicit updates. If tx.posd_note is None or empty, we might want to clear it.
+                    if note_node is not None:
+                        # user cleared note
+                        existing_elem.remove(note_node)
+                        updated = True
+
+                # 3. Tax Type
+                start_tax = existing_elem.find("tax_type")
+                if tx.tax_type:
+                    if start_tax is None:
+                        ET.SubElement(existing_elem, "tax_type").text = tx.tax_type
+                        updated = True
+                    elif start_tax.text != tx.tax_type:
+                        start_tax.text = tx.tax_type
+                        updated = True
+                else:
+                    if start_tax is not None:
+                        existing_elem.remove(start_tax)
+                        updated = True
+
+                if updated:
+                    added_count += 1
+                
                 continue
 
             # Create new transaction element

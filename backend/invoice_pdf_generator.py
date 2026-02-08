@@ -1,17 +1,17 @@
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    pisa = None
 import io
-import base64
 import os
 from datetime import datetime
-from backend.models import Invoice, InvoiceStatus
+from backend.models import Invoice
 from backend.barcode_utils import generate_epc_qr_code
 
 def generate_invoice_pdf(invoice: Invoice, issuer: dict) -> bytes:
-    """
-    Generates a PDF Invoice based on the invoice model and issuer details.
-    Uses DejaVu Sans for UTF-8 support.
-    """
-    
+    if pisa is None:
+        raise Exception("PDF generation disabled: xhtml2pdf not installed")
+
     # Format dates
     issue_date_str = invoice.issue_date.strftime('%d.%m.%Y.')
     due_date_str = invoice.due_date.strftime('%d.%m.%Y.')
@@ -20,8 +20,9 @@ def generate_invoice_pdf(invoice: Invoice, issuer: dict) -> bytes:
     qr_code_b64 = None
     if invoice.total_amount > 0 and issuer.get('iban'):
         try:
-            # Construct payment reference (Model and Number)
             clean_number = ''.join(filter(str.isdigit, invoice.number))
+            if not clean_number:
+                clean_number = "0"
             reference = f"HR01 {clean_number}"
             
             qr_code_b64 = generate_epc_qr_code(
@@ -38,25 +39,50 @@ def generate_invoice_pdf(invoice: Invoice, issuer: dict) -> bytes:
     # Prepare Items HTML
     items_html = ""
     for item in invoice.items:
-        # Calculate line total
         line_total = item.quantity * item.price * (1 - (item.discount or 0) / 100)
         
         items_html += f"""
         <tr>
-            <td style="padding: 12px 8px; border-bottom: 1px solid #f8fafc;">
-                <div style="font-weight: bold; color: #1e293b;">{item.description}</div>
+            <td class="py-3 border-b" style="text-align: left;">
+                <div class="font-medium text-slate-800">{item.description}</div>
             </td>
-            <td class="text-right" style="padding: 12px 8px; border-bottom: 1px solid #f8fafc;">{item.quantity:.2f}</td>
-            <td class="text-right" style="padding: 12px 8px; border-bottom: 1px solid #f8fafc;">{item.price:.2f} €</td>
-            <td class="text-right" style="padding: 12px 8px; border-bottom: 1px solid #f8fafc;">{f'{item.discount}%' if item.discount else '-'}</td>
-            <td class="text-right" style="padding: 12px 8px; border-bottom: 1px solid #f8fafc; font-weight: bold; color: #1e293b;">{line_total:.2f} €</td>
+            <td class="py-3 border-b text-right">{item.quantity}</td>
+            <td class="py-3 border-b text-right">{item.price:.2f} €</td>
+            <td class="py-3 border-b text-right text-slate-400">{f'{item.discount}%' if item.discount else '-'}</td>
+            <td class="py-3 border-b text-right font-medium text-slate-800">{line_total:.2f} €</td>
         </tr>
         """
 
-    # Resolve font path
+    # Tailwind-inspired CSS Colors
+    color_slate_900 = "#0f172a"
+    color_slate_800 = "#1e293b"
+    color_slate_700 = "#334155"
+    color_slate_500 = "#64748b"
+    color_slate_400 = "#94a3b8"
+    color_slate_200 = "#e2e8f0"
+    color_indigo_600 = "#4f46e5"
+    # Fonts
+    # xhtml2pdf works best with a link_callback for resources
+    # We will use simple relative paths in CSS and resolve them in the callback
+    import os
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    font_path_regular = os.path.join(current_dir, 'fonts', 'DejaVuSans.ttf')
-    font_path_bold = os.path.join(current_dir, 'fonts', 'DejaVuSans-Bold.ttf')
+    
+    def link_callback(uri, rel):
+        """
+        Convert HTML URIs to absolute system paths so xhtml2pdf can verify resources
+        """
+        # Resolve path relative to this file's directory
+        # This handles 'fonts/DejaVuSans.ttf' -> '/abs/path/to/backend/fonts/DejaVuSans.ttf'
+        if not uri.startswith('http'):
+             # If it's a file path
+            if 'fonts/' in uri:
+                path = os.path.join(current_dir, uri)
+            else:
+                path = os.path.join(current_dir, uri)
+                
+            if os.path.isfile(path):
+                return path
+        return uri
 
     html_content = f"""
     <!DOCTYPE html>
@@ -66,280 +92,226 @@ def generate_invoice_pdf(invoice: Invoice, issuer: dict) -> bytes:
         <style>
             @font-face {{
                 font-family: 'DejaVuSans';
-                src: url('{font_path_regular}');
+                src: url('fonts/DejaVuSans.ttf');
             }}
             @font-face {{
                 font-family: 'DejaVuSans';
                 font-weight: bold;
-                src: url('{font_path_bold}');
+                src: url('fonts/DejaVuSans-Bold.ttf');
             }}
             
             @page {{
                 size: A4;
-                margin: 0;
-                padding: 0;
-                @frame header_frame {{
-                    -pdf-frame-content: headerContent;
-                    left: 2.5cm;
-                    right: 2.5cm;
-                    top: 1.5cm;
-                    height: 2.5cm;
-                }}
-                @frame content_frame {{
-                    left: 2.5cm;
-                    right: 2.5cm;
-                    top: 4.5cm;
-                    bottom: 3.5cm;
-                }}
-                @frame footer_frame {{
-                    -pdf-frame-content: footerContent;
-                    left: 2.5cm;
-                    right: 2.5cm;
-                    bottom: 1.5cm;
-                    height: 1cm;
-                }}
+                margin: 1.5cm;
             }}
             
             body {{
-                font-family: 'DejaVuSans', Helvetica, Arial, sans-serif;
+                font-family: 'DejaVuSans', sans-serif;
                 font-size: 10pt;
+                color: {color_slate_900};
                 line-height: 1.5;
-                color: #334155; /* Slate 700 */
-                background-color: #ffffff;
             }}
-            
-            /* Typography */
-            h1 {{ font-size: 28pt; color: #cbd5e1; font-weight: 300; margin: 0; letter-spacing: 2px; text-transform: uppercase; }}
-            .text-sm {{ font-size: 9pt; }}
-            .text-xs {{ font-size: 8pt; }}
-            .font-bold {{ font-weight: bold; }}
+            /* ... rest of CSS ... */
+            /* Utils */
             .text-right {{ text-align: right; }}
-            .text-indigo {{ color: #4f46e5; }}
+            .text-center {{ text-align: center; }}
+            .font-bold {{ font-weight: bold; }}
+            .uppercase {{ text-transform: uppercase; }}
+            .text-xs {{ font-size: 8pt; }}
+            .text-sm {{ font-size: 9pt; }}
+            .text-lg {{ font-size: 12pt; }}
+            .text-xl {{ font-size: 14pt; }}
+            .text-3xl {{ font-size: 24pt; }}
+            
+            .text-slate-300 {{ color: #cbd5e1; }}
+            .text-slate-400 {{ color: {color_slate_400}; }}
+            .text-slate-500 {{ color: {color_slate_500}; }}
+            .text-slate-700 {{ color: {color_slate_700}; }}
+            .text-slate-800 {{ color: {color_slate_800}; }}
+            .text-indigo-600 {{ color: {color_indigo_600}; }}
+            
+            .mb-1 {{ margin-bottom: 4px; }}
+            .mb-2 {{ margin-bottom: 8px; }}
+            .mb-4 {{ margin-bottom: 16px; }}
+            .mt-4 {{ margin-top: 16px; }}
+            .py-3 {{ padding-top: 10px; padding-bottom: 10px; }}
+            
+            .border-b {{ border-bottom: 1px solid {color_slate_200}; }}
+            .border-t {{ border-top: 1px solid {color_slate_200}; }}
             
             /* Components */
             .logo-box {{
-                width: 32px;
-                height: 32px;
-                background-color: #4f46e5;
+                width: 30px;
+                height: 30px;
+                background-color: {color_indigo_600};
                 color: white;
                 text-align: center;
                 vertical-align: middle;
-                font-size: 18pt;
                 font-weight: bold;
-                border-radius: 6px;
-                padding-top: 5px; /* Visual fix for vertical align */
-            }}
-            
-            .header-table {{
-                width: 100%;
-                border-bottom: 2px solid #ffffff; /* Visual spacer if needed */
-            }}
-            
-            .info-grid {{
-                width: 100%;
-                margin-bottom: 40px;
-            }}
-            .label {{
-                font-size: 7pt;
-                font-weight: bold;
-                text-transform: uppercase;
-                color: #94a3b8; /* Slate 400 */
-                margin-bottom: 4px;
-            }}
-            
-            .dates-grid {{
-                width: 100%;
-                margin-bottom: 40px;
-                padding: 15px 0;
-                border-top: 1px solid #f1f5f9;
-                border-bottom: 1px solid #f1f5f9;
-            }}
-            
-            /* Table */
-            table.items {{
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 30px;
-            }}
-            table.items th {{
-                text-align: left;
-                font-size: 7pt;
-                text-transform: uppercase;
-                color: #94a3b8;
-                padding: 0 8px 10px 8px;
-            }}
-            
-            /* Totals */
-            .totals-table {{
-                width: 100%;
-                margin-top: 20px;
-            }}
-            .total-row td {{
-                padding: 4px 0;
-                text-align: right;
-            }}
-            .final-total {{
-                color: #4f46e5;
                 font-size: 14pt;
-                font-weight: bold;
-                padding-top: 10px;
-                margin-top: 10px;
-                border-top: 1px solid #e2e8f0;
+                padding-top: 5px; /* Adjust for vertical alignment */
+                border-radius: 4px;
             }}
             
-            /* QR & Notes */
-            .qr-container {{
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 10px;
-                display: inline-block;
-                text-align: center;
-            }}
+            table.layout-grid {{ width: 100%; border-collapse: collapse; }}
+            table.layout-grid td {{ vertical-align: top; }}
             
-            #footerContent {{
+            /* Items Table */
+            table.items-table {{ width: 100%; border-collapse: collapse; margin-top: 30px; }}
+            table.items-table th {{
+                text-align: left;
                 font-size: 8pt;
-                color: #94a3b8;
-                text-align: center;
-                border-top: 1px solid #f1f5f9;
-                padding-top: 15px;
+                text-transform: uppercase;
+                color: {color_slate_400};
+                padding-bottom: 10px;
+                border-bottom: 1px solid {color_slate_200};
             }}
+             table.items-table th.text-right {{ text-align: right; }}
+            
+            /* Totals Table */
+            table.totals-table {{ width: 100%; margin-top: 20px; }}
+            table.totals-table td {{ padding: 4px 0; }}
+            
+            .qr-container {{
+                border: 1px solid {color_slate_200};
+                padding: 10px;
+                border-radius: 8px;
+                display: inline-block;
+                background-color: white;
+            }}
+            
         </style>
     </head>
     <body>
         
-        <!-- Static Header -->
-        <div id="headerContent">
-            <table class="header-table">
-                <tr>
-                    <td width="50%" valign="top">
-                        <table cellspacing="0" cellpadding="0">
-                            <tr>
-                                <td width="40"><div class="logo-box">P</div></td>
-                                <td style="padding-left: 10px; font-size: 14pt; font-weight: bold; color: #0f172a;">{issuer.get('name')}</td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td width="50%" align="right" valign="top">
-                        <h1>Račun</h1>
-                        <div style="font-weight: bold; color: #334155; margin-top: 5px;">Broj: {invoice.number}</div>
-                        <div style="font-size: 8pt; color: #64748b; margin-top: 2px;">Ref: {invoice.number.replace('R-', '')}</div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Info Grid -->
-        <table class="info-grid" cellspacing="0" cellpadding="0">
+        <!-- Header -->
+        <table class="layout-grid" style="margin-bottom: 40px;">
             <tr>
-                <td width="50%" valign="top">
-                    <div class="label">IZDAVATELJ</div>
-                    <div style="font-weight: bold; color: #1e293b; font-size: 10pt; margin-bottom: 2px;">{issuer.get('name')}</div>
-                    <div class="text-sm" style="color: #64748b; line-height: 1.4;">
+                <td width="50%">
+                    <table cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td width="40"><div class="logo-box">P</div></td>
+                            <td valign="middle" style="padding-left: 10px;">
+                                <div class="text-xl font-bold text-slate-900">{issuer.get('name')}</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td width="50%" class="text-right">
+                    <div class="text-3xl font-light text-slate-300 uppercase" style="letter-spacing: 2px;">Račun</div>
+                    <div class="text-sm font-bold text-slate-700">Broj: {invoice.number}</div>
+                    <div class="text-xs text-slate-500">Ref: {datetime.now().strftime('%f')[:6]}</div>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Info Grid -->
+        <table class="layout-grid" style="margin-bottom: 40px;">
+            <tr>
+                <td width="50%">
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-2" style="letter-spacing: 1px;">Izdavatelj</div>
+                    <div class="text-sm font-bold text-slate-800 mb-1">{issuer.get('name')}</div>
+                    <div class="text-xs text-slate-500" style="line-height: 1.6;">
                         {issuer.get('address')}<br/>
-                        <span style="color: #64748b;">OIB:</span> {issuer.get('oib')}<br/>
-                        <span style="color: #64748b;">IBAN:</span> {issuer.get('iban')}
+                        OIB: {issuer.get('oib')}<br/>
+                        IBAN: {issuer.get('iban')}
                     </div>
                 </td>
-                <td width="50%" valign="top">
-                    <div class="label">ZA KORISNIKA</div>
-                    <div style="font-weight: bold; color: #1e293b; font-size: 10pt; margin-bottom: 2px;">{invoice.client_name}</div>
-                    <div class="text-sm" style="color: #64748b; line-height: 1.4;">
+                <td width="50%">
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-2" style="letter-spacing: 1px;">Za Korisnika</div>
+                    <div class="text-sm font-bold text-slate-800 mb-1">{invoice.client_name}</div>
+                    <div class="text-xs text-slate-500" style="line-height: 1.6;">
                         {invoice.client_address}<br/>
                         {invoice.client_zip} {invoice.client_city}<br/>
-                        <span style="color: #64748b;">OIB:</span> {invoice.client_oib}
+                        OIB: {invoice.client_oib}
                     </div>
                 </td>
             </tr>
         </table>
-
-        <!-- Dates -->
-        <table class="dates-grid" cellspacing="0" cellpadding="0">
+        
+        <!-- Dates Grid -->
+        <table class="layout-grid border-t border-b" style="padding: 15px 0;">
             <tr>
                 <td width="25%">
-                    <div class="label">DATUM IZDAVANJA</div>
-                    <div style="font-weight: 500;">{issue_date_str}</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">Datum Izdavanja</div>
+                    <div class="text-sm font-bold">{issue_date_str}</div>
                 </td>
                 <td width="25%">
-                    <div class="label">DATUM DOSPIJEĆA</div>
-                    <div style="font-weight: bold; color: #4f46e5;">{due_date_str}</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">Datum Dospijeća</div>
+                    <div class="text-sm font-bold text-indigo-600">{due_date_str}</div>
                 </td>
                 <td width="25%">
-                    <div class="label">NAČIN PLAĆANJA</div>
-                    <div>Transakcijski račun</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">Način Plaćanja</div>
+                    <div class="text-sm font-bold">Transakcijski račun</div>
                 </td>
                 <td width="25%">
-                    <div class="label">VALUTA</div>
-                    <div>EUR</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">Valuta</div>
+                    <div class="text-sm font-bold">EUR</div>
                 </td>
             </tr>
         </table>
-
-        <!-- Items Items -->
-        <table class="items" cellspacing="0" cellpadding="0">
+        
+        <!-- Items Table -->
+        <table class="items-table">
             <thead>
                 <tr>
                     <th width="40%">Opis Usluge / Proizvoda</th>
-                    <th width="10%" class="text-right">Kol.</th>
+                    <th width="15%" class="text-right">Kol.</th>
                     <th width="15%" class="text-right">Cijena</th>
                     <th width="10%" class="text-right">Popust</th>
-                    <th width="25%" class="text-right">Ukupno</th>
+                    <th width="20%" class="text-right">Ukupno</th>
                 </tr>
             </thead>
             <tbody>
                 {items_html}
             </tbody>
         </table>
-
-        <!-- Footer Section (Totals + QR) -->
-        <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        
+        <!-- Footer / Totals -->
+        <table class="layout-grid" style="margin-top: 30px;">
             <tr>
-                <td width="60%" valign="bottom">
+                <td width="50%">
                     {f'''
                     <div class="qr-container">
-                        <div class="label" style="margin-bottom: 5px;">SLIKAJ I PLATI</div>
-                        <img src="{qr_code_b64}" width="120" height="120" />
+                        <div class="text-xs font-bold text-center text-slate-400 uppercase mb-1">Slikaj i Plati</div>
+                        <img src="{qr_code_b64}" width="100" height="100" />
                     </div>
                     ''' if qr_code_b64 else ''}
                 </td>
-                <td width="40%" valign="top">
+                <td width="50%">
                     <table class="totals-table">
-                        <tr class="total-row">
-                            <td class="text-sm" style="color: #64748b;">Iznos bez PDV-a:</td>
-                            <td style="font-weight: bold;">{invoice.subtotal:.2f} €</td>
-                        </tr>
-                        <tr class="total-row">
-                            <td class="text-sm" style="color: #64748b;">PDV ({(invoice.tax_total / invoice.subtotal * 100 if invoice.subtotal > 0 else 25):.0f}%):</td>
-                            <td style="color: #475569;">{invoice.tax_total:.2f} €</td>
+                        <tr>
+                            <td class="text-right text-sm text-slate-500">Iznos bez PDV-a:</td>
+                            <td class="text-right font-bold text-slate-800" width="100">{invoice.subtotal:.2f} €</td>
                         </tr>
                         <tr>
-                            <td colspan="2" align="right">
-                                <div class="final-total">
-                                    <span style="font-size: 10pt; font-weight: normal; color: #64748b; margin-right: 10px;">ZA PLATITI:</span>
-                                    {invoice.total_amount:.2f} €
-                                </div>
+                            <td class="text-right text-sm text-slate-500">PDV ({(invoice.tax_total/invoice.subtotal*100) if invoice.subtotal else 25:.0f}%):</td>
+                            <td class="text-right text-sm text-slate-500">{invoice.tax_total:.2f} €</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right text-lg font-bold text-slate-900 border-t" style="padding-top: 10px;">Za platiti:</td>
+                            <td class="text-right text-lg font-bold text-indigo-600 border-t" style="padding-top: 10px;">
+                                {invoice.total_amount:.2f} €
                             </td>
                         </tr>
                     </table>
                 </td>
             </tr>
         </table>
-
-        <!-- Notes -->
-        <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-            <div class="label">NAPOMENA</div>
-            <div class="text-sm" style="color: #475569; margin-top: 5px;">
-                {invoice.notes or 'Obveznik nije u sustavu PDV-a, PDV nije obračunat temeljem čl. 90. st. 1. Zakona o PDV-u.'}
-            </div>
-            <div style="margin-top: 30px; font-size: 8pt; color: #94a3b8;">
-                Generirano putem <strong style="color: #4f46e5;">PO-SD App</strong> | Hvala na povjerenju!
-            </div>
+        
+        <!-- Bottom Notes -->
+        <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid {color_slate_200};">
+            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Napomena:</div>
+            <div class="text-xs text-slate-400">{invoice.notes or ''}</div>
+            
+            <table width="100%" style="margin-top: 20px;">
+                <tr>
+                    <td class="text-xs text-slate-400">Generirano putem <span class="text-indigo-600 font-bold">PO-SD App</span></td>
+                    <td class="text-right text-xs text-slate-400">Hvala na povjerenju!</td>
+                </tr>
+            </table>
         </div>
-
-        <!-- Static Footer -->
-        <div id="footerContent">
-            {issuer.get('name')} | OIB: {issuer.get('oib')} | IBAN: {issuer.get('iban')} | www.lotus-rc.hr
-        </div>
-
+        
     </body>
     </html>
     """
@@ -349,7 +321,8 @@ def generate_invoice_pdf(invoice: Invoice, issuer: dict) -> bytes:
     pisa_status = pisa.CreatePDF(
         html_content,
         dest=output_buffer,
-        encoding='utf-8'
+        encoding='utf-8',
+        link_callback=link_callback
     )
     
     if pisa_status.err:

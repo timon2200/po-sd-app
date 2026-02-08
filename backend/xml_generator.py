@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 from datetime import datetime
 from backend.models import POSDData
 import uuid
@@ -21,22 +22,23 @@ def generate_posd_xml(data: POSDData) -> str:
     meta = ET.SubElement(root, f"{{{NS_MAIN}}}Metapodaci", {f"xmlns": NS_META}) # Re-declaring xmlns for Metapodaci usually happens in ePorezna
     
     # Helper to add namespaced subelement
-    def add_meta_elem(parent, tag, text, xmlns=None, attribs=None):
+    def add_meta_elem(parent, tag, text, dc_uri=None, attribs=None):
         if attribs is None: attribs = {}
-        # In the user sample, Metapodaci items have dc attributes and are in Metapodaci namespace
-        # Actually in user sample: <Naslov dc=".../title">...
+        if dc_uri:
+            attribs["dc"] = dc_uri
+            
         elem = ET.SubElement(parent, f"{{{NS_META}}}{tag}", attribs)
         elem.text = text
         return elem
 
-    add_meta_elem(meta, "Naslov", "Izvješće o paušalnom dohotku od samostalnih djelatnosti i uplaćenom paušalnom porezu na dohodak i prirezu poreza na dohodak", attribs={f"{{{NS_DC}}}title": "Izvješće o paušalnom dohotku ..."})
-    add_meta_elem(meta, "Autor", "GENERATE-POSD-APP", attribs={f"{{{NS_DC}}}creator": "GENERATE-POSD-APP"})
-    add_meta_elem(meta, "Datum", datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), attribs={f"{{{NS_DC}}}date": datetime.now().isoformat()})
-    add_meta_elem(meta, "Format", "text/xml", attribs={f"{{{NS_DC}}}format": "text/xml"})
-    add_meta_elem(meta, "Jezik", "hr-HR", attribs={f"{{{NS_DC}}}language": "hr-HR"})
-    add_meta_elem(meta, "Identifikator", str(uuid.uuid4()), attribs={f"{{{NS_DC}}}identifier": str(uuid.uuid4())})
-    add_meta_elem(meta, "Uskladjenost", "ObrazacPOSD-v3-0", attribs={f"{{{NS_DCT}}}conformsTo": "ObrazacPOSD-v3-0"})
-    add_meta_elem(meta, "Tip", "Elektronički obrazac", attribs={f"{{{NS_DC}}}type": "Elektronički obrazac"})
+    add_meta_elem(meta, "Naslov", "Izvješće o paušalnom dohotku od samostalnih djelatnosti i uplaćenom paušalnom porezu na dohodak i prirezu poreza na dohodak", dc_uri="http://purl.org/dc/elements/1.1/title")
+    add_meta_elem(meta, "Autor", data.name, dc_uri="http://purl.org/dc/elements/1.1/creator")
+    add_meta_elem(meta, "Datum", datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), dc_uri="http://purl.org/dc/elements/1.1/date")
+    add_meta_elem(meta, "Format", "text/xml", dc_uri="http://purl.org/dc/elements/1.1/format")
+    add_meta_elem(meta, "Jezik", "hr-HR", dc_uri="http://purl.org/dc/elements/1.1/language")
+    add_meta_elem(meta, "Identifikator", str(uuid.uuid4()), dc_uri="http://purl.org/dc/elements/1.1/identifier")
+    add_meta_elem(meta, "Uskladjenost", "ObrazacPOSD-v3-0", dc_uri="http://purl.org/dc/terms/conformsTo")
+    add_meta_elem(meta, "Tip", "Elektronički obrazac", dc_uri="http://purl.org/dc/elements/1.1/type")
     add_meta_elem(meta, "Adresant", "Ministarstvo Financija, Porezna uprava, Zagreb")
 
     # 3. Zaglavlje
@@ -121,36 +123,36 @@ def generate_posd_xml(data: POSDData) -> str:
     ET.SubElement(tijelo, f"{{{NS_MAIN}}}PrivremenaObustavaCijeluGodinu").text = "NE"
     ET.SubElement(tijelo, f"{{{NS_MAIN}}}PrestanakIzlazakIzObrtaPrijePocetkaSezone").text = "NE"
     
-    # Empty elements
-    ET.SubElement(tijelo, f"{{{NS_MAIN}}}RazdobljePojedinacneDjelatnosti")
+    # 4.0 RazdobljePojedinacneDjelatnosti
+    rpd = ET.SubElement(tijelo, f"{{{NS_MAIN}}}RazdobljePojedinacneDjelatnosti")
+    rpd_raz = ET.SubElement(rpd, f"{{{NS_MAIN}}}Razdoblje")
+    ET.SubElement(rpd_raz, f"{{{NS_MAIN}}}DatumOd").text = f"{data.year}-01-01"
+    ET.SubElement(rpd_raz, f"{{{NS_MAIN}}}DatumDo").text = f"{data.year}-12-31"
+
     ET.SubElement(tijelo, f"{{{NS_MAIN}}}RazdobljeZajednickeDjelatnosti")
     
     # 4.1 PodaciOPrimicima
     primici = ET.SubElement(tijelo, f"{{{NS_MAIN}}}PodaciOPrimicima")
     
     receipts_fmt = "{:.2f}".format(data.total_receipts)
+    tax_base_fmt = "{:.2f}".format(data.annual_tax_base) if data.annual_tax_base else "0.00"
     
     ET.SubElement(primici, f"{{{NS_MAIN}}}PrimiciUGotovini").text = "0.00"
     ET.SubElement(primici, f"{{{NS_MAIN}}}PrimiciBezGotovine").text = receipts_fmt
     ET.SubElement(primici, f"{{{NS_MAIN}}}Ukupno").text = receipts_fmt
     
     # 4.2 GodisnjiDohodak...
-    # Assuming logic: Dohodak = Ukupni primici (simplified for pausal? No, pausal tax base is fixed by tiers usually, 
-    # but strictly PO-SD reports RECEIPTS as basis for determining tier.
-    # Actually, "GodisnjiDohodak" here might refer to the taxable base. 
-    # But usually for PAUSAL, you report Receipts, and the form calculates tax.
-    # Wait, the user sample has "GodisnjiDohodakOfPojedinacneDjelatnosti" -> GodisnjiDohodak.
-    # In PO-SD, usually "Dohodak" implies the receipts amount relevant for tier.
+    # GodisnjiDohodak refers to the annual tax base determined by the bracket
     
     gd_poj = ET.SubElement(tijelo, f"{{{NS_MAIN}}}GodisnjiDohodakOdPojedinacneDjelatnosti")
-    ET.SubElement(gd_poj, f"{{{NS_MAIN}}}GodisnjiDohodak").text = receipts_fmt
+    ET.SubElement(gd_poj, f"{{{NS_MAIN}}}GodisnjiDohodak").text = tax_base_fmt
     ET.SubElement(gd_poj, f"{{{NS_MAIN}}}BrojMjeseciObavljanjaDjelatnosti").text = "12"
     
     gd_zaj = ET.SubElement(tijelo, f"{{{NS_MAIN}}}GodisnjiDohodakOdZajednickeDjelatnosti")
     ET.SubElement(gd_zaj, f"{{{NS_MAIN}}}GodisnjiDohodak").text = "0.00"
     ET.SubElement(gd_zaj, f"{{{NS_MAIN}}}BrojMjeseciObavljanjaDjelatnosti").text = "0"
     
-    ET.SubElement(tijelo, f"{{{NS_MAIN}}}UkupniGodisnjiDohodak").text = receipts_fmt
+    ET.SubElement(tijelo, f"{{{NS_MAIN}}}UkupniGodisnjiDohodak").text = tax_base_fmt
     
     # 4.3 ObracunPorezaIPrireza
     obracun = ET.SubElement(tijelo, f"{{{NS_MAIN}}}ObracunPorezaIPrireza")
@@ -182,4 +184,10 @@ def generate_posd_xml(data: POSDData) -> str:
     # Since we registered NS_MAIN as default (''), it should be fine.
     
     xml_str = ET.tostring(root, encoding="utf-8", xml_declaration=True)
-    return xml_str.decode("utf-8")
+    
+    # Pretty print
+    try:
+        reparsed = minidom.parseString(xml_str)
+        return reparsed.toprettyxml(indent="  ")
+    except:
+        return xml_str.decode("utf-8")

@@ -885,6 +885,8 @@
             <category>business_income</category>
             <raw_reference>HR99  HR99  10667587848</raw_reference>
             <source_file>IZV_2025_12_05 03_55_54_686_305.html</source_file>
+            <is_excluded_from_posd>true</is_excluded_from_posd>
+            <posd_note>Refund Aliexpress</posd_note>
         </transaction>
         <transaction id="7201a582d601265e73a2a456a0002588">
             <date>2025-11-14</date>
@@ -1775,6 +1777,8 @@
             <category>business_income</category>
             <raw_reference>HR99  HR99  10494877392</raw_reference>
             <source_file>IZV_2025_10_09 03_40_12_726_59.html</source_file>
+            <is_excluded_from_posd>true</is_excluded_from_posd>
+            <posd_note>Refund Aliexopress</posd_note>
         </transaction>
         <transaction id="6e16b3f0cc7f21a7f204712eacef3f92">
             <date>2025-10-07</date>
@@ -3965,6 +3969,8 @@
             <type>inflow</type>
             <category>business_income</category>
             <raw_reference>HR99  HR99  10275990522</raw_reference>
+            <is_excluded_from_posd>true</is_excluded_from_posd>
+            <posd_note>Refund Aliexpress</posd_note>
         </transaction>
         <transaction id="936e9a06b644ed494c0a143c1c4f9e2d">
             <date>2025-07-31</date>
@@ -4865,6 +4871,8 @@
             <type>inflow</type>
             <category>business_income</category>
             <raw_reference>HR99  HR99  10152704345</raw_reference>
+            <is_excluded_from_posd>true</is_excluded_from_posd>
+            <posd_note>Refund Aliexpress</posd_note>
         </transaction>
         <transaction id="861ef7d251178b2d854ad683e433d929">
             <date>2025-06-27</date>
@@ -5828,6 +5836,8 @@
             <type>inflow</type>
             <category>business_income</category>
             <raw_reference>HR99  HR00 1237667-9869 2025-49298924-10075799587</raw_reference>
+            <is_excluded_from_posd>true</is_excluded_from_posd>
+            <posd_note>Vraćanje novca koji je uplaćen na Aircash a povratno vraćen zbog pogrešno unesenog broja primatelja. </posd_note>
         </transaction>
         <transaction id="5b6109a95564d71bf06c270b6b8ba66d">
             <date>2025-06-03</date>
@@ -7385,6 +7395,8 @@
             <type>inflow</type>
             <category>business_income</category>
             <raw_reference>HR99  HR99  6117284544</raw_reference>
+            <is_excluded_from_posd>true</is_excluded_from_posd>
+            <posd_note>Refund Aliexpress</posd_note>
         </transaction>
         <transaction id="a4723164ef27a9b37f124a6dbea7bef1">
             <date>2025-02-22</date>
@@ -18203,6 +18215,636 @@
             <type>inflow</type>
             <category>business_income</category>
             <raw_reference>HR99  HR00 1-2022 2022-87619585-4164278381</raw_reference>
+        </transaction>
+        <transaction id="1555d8213b5a071cbd989eb66656e150">
+            <date>2026-02-04</date>
+            <description>crypto.com St Julian s</description>
+            <amount>1000.0</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10844824081</raw_reference>
+            <source_file>IZV_2026_02_05 03_22_05_350_957.html</source_file>
+        </transaction>
+        <transaction id="8b3ac7bb153f81f87c4ef04c57645010">
+            <date>2026-02-03</date>
+            <description>DM-DROGERIE MARKT Varazdin</description>
+            <amount>2.3</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10841796827</raw_reference>
+            <source_file>IZV_2026_02_04 03_15_34_968_764.html</source_file>
+        </transaction>
+        <transaction id="ac50bb637ef6dae7c470b00794f7aebb">
+            <date>2026-02-03</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>1.3</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10842158984</raw_reference>
+            <source_file>IZV_2026_02_04 03_15_34_968_764.html</source_file>
+        </transaction>
+        <transaction id="9b24a8c7558ee27297bfc9c7f0aa3df8">
+            <date>2026-02-03</date>
+            <description>WOLT ZAGREB</description>
+            <amount>14.73</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10842169301</raw_reference>
+            <source_file>IZV_2026_02_04 03_15_34_968_764.html</source_file>
+        </transaction>
+        <transaction id="233d1f703e116bd3a5f05f8331d7bc32">
+            <date>2026-02-02</date>
+            <description>DM-DROGERIE MARKT Varazdin</description>
+            <amount>11.7</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10837641142</raw_reference>
+            <source_file>IZV_2026_02_03 03_59_12_730_275.html</source_file>
+        </transaction>
+        <transaction id="31e13c798fec64ec8fffffec864e3de6">
+            <date>2026-02-01</date>
+            <description>HOTEL KAJ-LOBI BAR MARIJA BISTR</description>
+            <amount>5.9</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10834806295</raw_reference>
+            <source_file>IZV_2026_02_02 02_30_26_856_96.html</source_file>
+        </transaction>
+        <transaction id="b2e278e9ed746924d8caf31e016cb0c6">
+            <date>2026-01-31</date>
+            <description>ALIEXPRESSCOM Luxembourg</description>
+            <amount>15.56</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10828919487</raw_reference>
+            <source_file>IZV_2026_02_01 02_47_12_522_980.html</source_file>
+        </transaction>
+        <transaction id="d6fffac7d4dcb19185dab902da83491e">
+            <date>2026-01-30</date>
+            <description>SZ UL. ZRINSKIH I FRANKOPANA 17, VARAŽDIN - ZTB STAN D.O.O. HR8923400091311347835</description>
+            <amount>13.52</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR05 7619820-69256-186224 2026-9157758-10825199628</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="e0bba7728eba8e66f731e5639eaea939">
+            <date>2026-01-30</date>
+            <description>SZ UL. ZRINSKIH I FRANKOPANA 17, VARAŽDIN - ZTB STAN D.O.O. HR8923400091311347835</description>
+            <amount>13.52</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR05 7619626-69256-186224 2026-9157764-10825199630</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="fbf771ebfeee565492660ff2561a9b80">
+            <date>2026-01-30</date>
+            <description>SZ UL. ZRINSKIH I FRANKOPANA 17, VARAŽDIN - ZTB STAN D.O.O. HR8923400091311347835</description>
+            <amount>13.52</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR05 7619421-69256-186224 2026-9157767-10825199631</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="a67e657037a0c097b1b287a1b3bb7059">
+            <date>2026-01-30</date>
+            <description>VARKOM D.O.O. HR6623400091510184087</description>
+            <amount>3.64</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR01 3-27717-12511019 2026-9157802-10825199646</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="049c7f759e56966bf897207688cc2f29">
+            <date>2026-01-30</date>
+            <description>VARKOM D.O.O. HR6623400091510184087</description>
+            <amount>5.49</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR01 3-27717-12512015 2026-9157813-10825199649</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="8da86d81ae44cac310b6043dc308214b">
+            <date>2026-01-30</date>
+            <description>ČISTOĆA D.O.O. HR7623900011100847041</description>
+            <amount>9.64</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR02 2025365758-3773183 2026-9157820-10825199653</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="f052fe0828a74e8fbc15982e624b32ab">
+            <date>2026-01-30</date>
+            <description>ČISTOĆA D.O.O. HR7623900011100847041</description>
+            <amount>9.64</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR02 2025398996-3773183 2026-9157837-10825199661</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="e4666ba570448ae8455021ad6a9f11a1">
+            <date>2026-01-30</date>
+            <description>DM-DROGERIE MARKT Varazdin</description>
+            <amount>8.55</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10826328872</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="42dfb3ecb3d7337efcb47db3286f0ae0">
+            <date>2026-01-30</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>7.1</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10826330658</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="5137ddb003da21000a4c3d2df978d5c7">
+            <date>2026-01-30</date>
+            <description>KFC VARAZDIN GREEN PARK DONJI KNEGINE</description>
+            <amount>30.6</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10826343968</raw_reference>
+            <source_file>IZV_2026_01_31 03_46_20_174_307.html</source_file>
+        </transaction>
+        <transaction id="bb63f157377bdd9d3fcd105d427ae5fd">
+            <date>2026-01-29</date>
+            <description>TEDI Fil. 1893 DONJI KNEGINE</description>
+            <amount>30.65</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10823698623</raw_reference>
+            <source_file>IZV_2026_01_30 03_23_16_990_592.html</source_file>
+        </transaction>
+        <transaction id="324cbb94e414e9aa74cbc7f268e39641">
+            <date>2026-01-29</date>
+            <description>PRO-TRADE D.O.O. VARAZDIN</description>
+            <amount>80.18</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10823701748</raw_reference>
+            <source_file>IZV_2026_01_30 03_23_16_990_592.html</source_file>
+        </transaction>
+        <transaction id="2a81dd93a9d0f57d082866f869b53d77">
+            <date>2026-01-29</date>
+            <description>KONZUM P-1415 VARAZDIN</description>
+            <amount>47.18</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10823703674</raw_reference>
+            <source_file>IZV_2026_01_30 03_23_16_990_592.html</source_file>
+        </transaction>
+        <transaction id="3a3a9b1d18726712167c1480e5296cd7">
+            <date>2026-01-29</date>
+            <description>GRAD IVANEC HR9723600001815600004</description>
+            <amount>900.0</amount>
+            <currency>EUR</currency>
+            <type>inflow</type>
+            <category>business_income</category>
+            <raw_reference>HR99  HR00 0120265 2026-9058995-10823246270</raw_reference>
+            <source_file>IZV_2026_01_30 03_23_16_990_592.html</source_file>
+        </transaction>
+        <transaction id="322689995c7bedd5577dd21e158f9d39">
+            <date>2026-01-29</date>
+            <description>GRAD IVANEC HR9723600001815600004</description>
+            <amount>1200.0</amount>
+            <currency>EUR</currency>
+            <type>inflow</type>
+            <category>business_income</category>
+            <raw_reference>HR99  HR00 0120262 2026-9059000-10823246275</raw_reference>
+            <source_file>IZV_2026_01_30 03_23_16_990_592.html</source_file>
+        </transaction>
+        <transaction id="355444ac7e26b66181e8056607053125">
+            <date>2026-01-28</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>3.1</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10821238998</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="9766778b2ccf42f2d86ec1fe0172aec0">
+            <date>2026-01-28</date>
+            <description>MUELLER TRGOVINA 5069 Turcin</description>
+            <amount>9.76</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10821239225</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="ca2bf8628bf7c6bb37959796f0fa4cac">
+            <date>2026-01-28</date>
+            <description>CINESTAR LUMINI CENTAR VARAZDIN</description>
+            <amount>25.0</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10821243637</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="0e4a232fb625b4458eebf9fa5f4857a4">
+            <date>2026-01-28</date>
+            <description>TOBACCO SHOP VZ VARAZDIN</description>
+            <amount>1.45</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10821247877</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="f8d1f96eb6843fcb2da60cb00bbdccdb">
+            <date>2026-01-28</date>
+            <description>WOLT ZAGREB</description>
+            <amount>9.09</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10821248903</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="70523a67b401c31bc2f3f0f8621999f5">
+            <date>2026-01-28</date>
+            <description>Josipa Poje-Hickman HR7524020063104175509</description>
+            <amount>2100.0</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR00 1-1-1 2026-8810157-10821192262</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="5c478d8c6f3018102ecb2cdb7bca5a18">
+            <date>2026-01-28</date>
+            <description>TURISTIČKA ZAJEDNICA GRADA VARAŽDINA VARAŽDIN HR3523400091110803150</description>
+            <amount>13500.0</amount>
+            <currency>EUR</currency>
+            <type>inflow</type>
+            <category>business_income</category>
+            <raw_reference>HR00 85989550514 HR00 0120264 2026-8722904-10820716992</raw_reference>
+            <source_file>IZV_2026_01_29 03_20_23_623_4.html</source_file>
+        </transaction>
+        <transaction id="4f81bb166692b734b4bd308131da7a96">
+            <date>2026-01-27</date>
+            <description>HEP ELEKTRA D.O.O. DP ELEKTRA ZAGREB HR9223400091510077598</description>
+            <amount>40.31</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR01 2200428559-251220-2 2026-8451872-10818138405</raw_reference>
+            <source_file>IZV_2026_01_28 02_55_44_176_584.html</source_file>
+        </transaction>
+        <transaction id="c418e62fa96246e4f0b1967dfc9daab0">
+            <date>2026-01-26</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>15.4</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10817779437</raw_reference>
+            <source_file>IZV_2026_01_28 02_55_44_176_584.html</source_file>
+        </transaction>
+        <transaction id="6b8918aa14e3d0b5ea3849b418b50e5f">
+            <date>2026-01-27</date>
+            <description>DJI Barendrecht</description>
+            <amount>83.29</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10818666258</raw_reference>
+            <source_file>IZV_2026_01_28 02_55_44_176_584.html</source_file>
+        </transaction>
+        <transaction id="78523245202b3f7af47df0e2371585cc">
+            <date>2026-01-27</date>
+            <description>TURIST D.O.O.-CAFFE BA VARAZDIN</description>
+            <amount>15.6</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10818671830</raw_reference>
+            <source_file>IZV_2026_01_28 02_55_44_176_584.html</source_file>
+        </transaction>
+        <transaction id="9b707978af7e18511ca9c67c9591d543">
+            <date>2026-01-27</date>
+            <description>KONZUM P-0720 VARAZDIN</description>
+            <amount>25.74</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10818672637</raw_reference>
+            <source_file>IZV_2026_01_28 02_55_44_176_584.html</source_file>
+        </transaction>
+        <transaction id="78d6ce340ae33efac52864a619c3d9f3">
+            <date>2026-01-25</date>
+            <description>PETROL PM VARAZDIN, KOPRI VARAZDIN</description>
+            <amount>3.98</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10813754701</raw_reference>
+            <source_file>IZV_2026_01_26 01_48_40_886_414.html</source_file>
+        </transaction>
+        <transaction id="a6883ff95abee1a09c71c93838d62255">
+            <date>2026-01-24</date>
+            <description>WOLT ZAGREB</description>
+            <amount>15.22</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10812073538</raw_reference>
+            <source_file>IZV_2026_01_25 04_50_30_043_980.html</source_file>
+        </transaction>
+        <transaction id="d623f0ee945bb4dfd5c2c7ddb6ec31f5">
+            <date>2026-01-22</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>0.8</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10806925878</raw_reference>
+            <source_file>IZV_2026_01_23 03_02_18_815_731.html</source_file>
+        </transaction>
+        <transaction id="8f0b9a2a77b073e4a9877110a1b26354">
+            <date>2026-01-22</date>
+            <description>TOBACCO SHOP VZ VARAZDIN</description>
+            <amount>2.15</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10806930278</raw_reference>
+            <source_file>IZV_2026_01_23 03_02_18_815_731.html</source_file>
+        </transaction>
+        <transaction id="d91de81e1f86a7de5c935d42b69959c2">
+            <date>2026-01-22</date>
+            <description>VUDRAG INDUSTRIES D.O.O. VARAŽDIN HR9724840081135393788</description>
+            <amount>1300.0</amount>
+            <currency>EUR</currency>
+            <type>inflow</type>
+            <category>business_income</category>
+            <raw_reference>HR99  HR00 0120263 2026-7194974-10806033302</raw_reference>
+            <source_file>IZV_2026_01_23 03_02_18_815_731.html</source_file>
+        </transaction>
+        <transaction id="ef5f08d1b70989319a31bb829cb91a65">
+            <date>2026-01-21</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>2.6</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10804214640</raw_reference>
+            <source_file>IZV_2026_01_22 02_49_41_772_925.html</source_file>
+        </transaction>
+        <transaction id="df9797f6cfbef62203c865bc4fe1fe98">
+            <date>2026-01-21</date>
+            <description>HGSPOT GRUPA VARAZDIN</description>
+            <amount>8.0</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10804229309</raw_reference>
+            <source_file>IZV_2026_01_22 02_49_41_772_925.html</source_file>
+        </transaction>
+        <transaction id="8f1f50e960b0e62c6daffe649a97f246">
+            <date>2026-01-21</date>
+            <description>Tekstil-ka d.o.o. Vara Varazdin</description>
+            <amount>1.01</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10804232214</raw_reference>
+            <source_file>IZV_2026_01_22 02_49_41_772_925.html</source_file>
+        </transaction>
+        <transaction id="59722ec3569a3ceca520856ffcb3c924">
+            <date>2026-01-20</date>
+            <description>TOBACCO SHOP VZ VARAZDIN</description>
+            <amount>4.5</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10801398581</raw_reference>
+            <source_file>IZV_2026_01_21 03_09_01_776_993.html</source_file>
+        </transaction>
+        <transaction id="d4ea4a593bf44313d44e1f7c1f66a1a4">
+            <date>2026-01-20</date>
+            <description>GRAD VARAŽDIN VARAŽDIN HR3924020061847200008</description>
+            <amount>15.0</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR23 6700-72-107884 2026-6682661-10801318142</raw_reference>
+            <source_file>IZV_2026_01_21 03_09_01_776_993.html</source_file>
+        </transaction>
+        <transaction id="7d9800aafda9f2666dbafd9d1d73f9a6">
+            <date>2026-01-16</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>5.5</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10792553758</raw_reference>
+            <source_file>IZV_2026_01_18 04_54_49_571_142.html</source_file>
+        </transaction>
+        <transaction id="f0f07a4cc4208735ee3de30fec86c55e">
+            <date>2026-01-17</date>
+            <description>TURIST D.O.O.-CAFFE BA VARAZDIN</description>
+            <amount>14.1</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10793346970</raw_reference>
+            <source_file>IZV_2026_01_18 04_54_49_571_142.html</source_file>
+        </transaction>
+        <transaction id="583aae0bed63b5dfb528397125a57a51">
+            <date>2026-01-16</date>
+            <description>HRVATSKI ZAVOD ZA ZDRAVSTVENO OSIGURANJE-OBVEZNO ZDRAV. OSIGURANJE HR6510010051550100001</description>
+            <amount>118.73</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR68 8478-58278708852 2026-5042304-10789130783</raw_reference>
+            <source_file>IZV_2026_01_17 03_41_56_639_524.html</source_file>
+        </transaction>
+        <transaction id="f21921f6bfbac99ff40bbd3553a2ed07">
+            <date>2026-01-16</date>
+            <description>DOPR.ZA MIROV.OSIG. ZA STAROST NA TEMELJU IND.KAPIT.ŠTEDNJE HR7610010051700036001</description>
+            <amount>35.98</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR68 2046-58278708852 2026-5042288-10789130779</raw_reference>
+            <source_file>IZV_2026_01_17 03_41_56_639_524.html</source_file>
+        </transaction>
+        <transaction id="8c23271e54c46e02ad6a8bfb9dcab60a">
+            <date>2026-01-16</date>
+            <description>DRŽAVNI PRORAČUN REPUBLIKE HRVATSKE HR1210010051863000160</description>
+            <amount>107.96</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR68 8214-58278708852 2026-5042296-10789130781</raw_reference>
+            <source_file>IZV_2026_01_17 03_41_56_639_524.html</source_file>
+        </transaction>
+        <transaction id="4d6b3456b1639d6de0562d617b96bb26">
+            <date>2026-01-16</date>
+            <description>INA BP VARAZDIN</description>
+            <amount>77.47</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10790692358</raw_reference>
+            <source_file>IZV_2026_01_17 03_41_56_639_524.html</source_file>
+        </transaction>
+        <transaction id="f3cb0484a738b4b306b4002485ca4ab4">
+            <date>2026-01-15</date>
+            <description>MLINAR P-452 Varazdin</description>
+            <amount>2.5</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10787356932</raw_reference>
+            <source_file>IZV_2026_01_16 03_57_51_814_877.html</source_file>
+        </transaction>
+        <transaction id="392c711baddfce9042c90dd3e3280ae7">
+            <date>2026-01-15</date>
+            <description>CINESTAR VARAZDIN VARAZDIN</description>
+            <amount>49.45</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10787368082</raw_reference>
+            <source_file>IZV_2026_01_16 03_57_51_814_877.html</source_file>
+        </transaction>
+        <transaction id="2e0831be1246a4c254e43b13d8397596">
+            <date>2026-01-15</date>
+            <description>TURIST D.O.O.-CAFFE BA VARAZDIN</description>
+            <amount>23.8</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10787375308</raw_reference>
+            <source_file>IZV_2026_01_16 03_57_51_814_877.html</source_file>
+        </transaction>
+        <transaction id="ee9465de6312e0b6443d87abd01b3f8f">
+            <date>2026-01-15</date>
+            <description>INTERSPORT VARAZDIN VARAZDIN</description>
+            <amount>168.37</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10787375562</raw_reference>
+            <source_file>IZV_2026_01_16 03_57_51_814_877.html</source_file>
+        </transaction>
+        <transaction id="e295413e57f4741e6f53ad14f4acc0d0">
+            <date>2026-01-15</date>
+            <description>ELEVENLABS.IO ELEVENLABS.IO 1 EUR=1,1313 USD</description>
+            <amount>19.45</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10787381142</raw_reference>
+            <source_file>IZV_2026_01_16 03_57_51_814_877.html</source_file>
+        </transaction>
+        <transaction id="5a8ebe8faa7893553a70297a391654f2">
+            <date>2026-01-14</date>
+            <description>ERSTE&amp;STEIERMÄRKISCHE BANK d.d. RIJEKA HR9524020061031262160</description>
+            <amount>19.96</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10783169522</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="f5025bd41f8d9c0adb199ca0e1a9fdbf">
+            <date>2026-01-14</date>
+            <description>TOBACCO SHOP VZ VARAZDIN</description>
+            <amount>17.6</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10783551431</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="ac00d2a27d6ef65aaf9682604109601f">
+            <date>2026-01-14</date>
+            <description>TOBACCO SHOP VZ VARAZDIN</description>
+            <amount>1.2</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10783551434</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="6d32e9e70ca88af0ea6754d4c1811802">
+            <date>2026-01-14</date>
+            <description>Glovo 13JAN VZ2FV4D74 Zagreb</description>
+            <amount>36.76</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10783552840</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="0844fa1510128bec0ce7e46b1c39b6b7">
+            <date>2026-01-14</date>
+            <description>Google One Dublin</description>
+            <amount>144.99</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10783560382</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="59e00c58f35554ad2b6dcd5ac1bf5503">
+            <date>2026-01-14</date>
+            <description>GRAD VARAŽDIN VARAŽDIN HR3924020061847200008</description>
+            <amount>66.0</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR23 6700-80-9356 2026-4165713-10783484358</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="5017ef26eca814b3a38ed5dbf9b2f685">
+            <date>2026-01-14</date>
+            <description>Lotus RC, vl. Timon Terzić VARAŽDIN HR9824020061140483524</description>
+            <amount>14.83</amount>
+            <currency>EUR</currency>
+            <type>inflow</type>
+            <category>business_income</category>
+            <raw_reference>HR99  HR99  10783553085</raw_reference>
+            <source_file>IZV_2026_01_15 06_08_08_512_637.html</source_file>
+        </transaction>
+        <transaction id="82e036d6cabf2c13f14d7169b69ad614">
+            <date>2026-01-13</date>
+            <description>BERNARDA PIZZERIA VZ TOPLICE</description>
+            <amount>40.4</amount>
+            <currency>EUR</currency>
+            <type>outflow</type>
+            <category>business_expense</category>
+            <raw_reference>HR99  HR99  10780452215</raw_reference>
+            <source_file>IZV_2026_01_14 03_22_33_815_528.html</source_file>
         </transaction>
     </transactions>
     <metadata>
