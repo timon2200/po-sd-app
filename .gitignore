@@ -18,7 +18,18 @@ backend_debug*.log
 # System
 .DS_Store
 
-# Secrets - NEVER COMMIT THESE
+# ===== SENSITIVE DATA - NEVER COMMIT =====
+# Credentials & secrets
 credentials.json
 token.json
 client_secret.json
+backend/sudreg_credentials.json
+**/sudreg_credentials.json
+
+# Bank statements (izvodi), transactions, invoices
+data/
+PO-SD/
+
+# Any XML bank exports
+**/IZV_*.html
+**/IZV_*.xml
